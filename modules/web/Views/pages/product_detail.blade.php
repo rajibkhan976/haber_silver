@@ -1,19 +1,17 @@
 @extends('web::layouts.master')
-@section('content')
 
-
+<div class="container-fluid">
     <div class="row">
-    <div class="category-top-bar">
-        <div class="col-md-6"></div>
-        <div class="col-md-5">
-            <h2>Product Details</h2>
-        </div>
-        <div class="col-md-1">
-            <h2><i class="fa fa-align-justify" aria-hidden="true"></i> <i class="fa fa-th-large" aria-hidden="true"></i></h2>
+        <div class="category-top-bar">
+            <div class="container">
+                <div class="col-md-6"></div><div class="col-md-5"><h2>Product Details</h2></div><div class="col-md-1"><h2><i class="fa fa-align-justify" aria-hidden="true"></i> <i class="fa fa-th-large" aria-hidden="true"></i></h2></div>
+            </div>
         </div>
     </div>
 </div>
-</div>
+
+@section('content')
+
 <!-- Page Content -->
 <div class="container">
     <!-- Page Features -->

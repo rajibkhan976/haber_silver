@@ -2,6 +2,7 @@
 
 namespace Modules\Admin\Controllers;
 
+use App\Http\Helpers\DirectoryCheckPermission;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -10,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Input;
 use App\Http\Helpers\ActivityLogs;
-use App\Helpers\UserLogFileHelper;
+use App\Helpers\AdminLogFileHelper;
 use Modules\Admin\Models\TradeShow;
 use Image;
 use File;
@@ -29,13 +30,16 @@ class TradeShowController extends Controller
     protected $image_relative_path;
     protected $thumb_relative_path;
 
+
     public function __construct()
     {
         $this->image_path = public_path('uploads/trade_show/image');
         $this->thumb_path = public_path('uploads/trade_show/thumb');
         $this->image_relative_path = '/uploads/trade_show/image';
         $this->thumb_relative_path = '/uploads/trade_show/thumb';
+
     }
+
 
     //Get and Post method
     protected function isGetRequest()
@@ -101,6 +105,10 @@ class TradeShowController extends Controller
                 if (TradeShow::create($input)) {
                     if ($image != null) {
                         $thumb_img = Image::make($image->getRealPath())->resize(50, 50);
+
+                        DirectoryCheckPermission::is_dir_set_permission($this->image_path);
+                        DirectoryCheckPermission::is_dir_set_permission($this->thumb_path);
+
                         $thumb_img->save($this->thumb_path . '/' . $imagetitle, 100);
                         $image->move($this->image_path, $imagetitle);
                     }
@@ -115,13 +123,13 @@ class TradeShowController extends Controller
 
                 DB::commit();
 
-                UserLogFileHelper::log_info('store-trade-show', 'Successfully Added', ['a trade show Item Title ' . $input['title']]);
+                AdminLogFileHelper::log_info('store-trade-show', 'Successfully Added', ['a trade show Item Title ' . $input['title']]);
                 Session::flash('message', 'Successfully added!');
 
             } catch (\Exception $e) {
                 //If there are any exceptions, rollback the transaction`
                 DB::rollback();
-                UserLogFileHelper::log_error('store-trade-show', $e->getMessage(), ['Trade show Title' . $input_data['title']]);
+                AdminLogFileHelper::log_error('store-trade-show', $e->getMessage(), ['Trade show Title' . $input['title']]);
                 Session::flash('danger', $e->getMessage());
 
             }
@@ -173,6 +181,7 @@ class TradeShowController extends Controller
     {
         $pageTitle = "Update Trade Show Informations";
         $data = TradeShow::where('id', $id)->first();
+        $edit_cons = 'edit';
 
         //set user activity data
         $action_name = 'Edit Trade Show ';
@@ -184,7 +193,8 @@ class TradeShowController extends Controller
 
         return view('admin::trade_show.update', [
             'data' => $data,
-            'pageTitle' => $pageTitle
+            'pageTitle' => $pageTitle,
+            'edit_cons' => $edit_cons,
         ]);
     }
 
@@ -224,17 +234,21 @@ class TradeShowController extends Controller
                         File::Delete($imagesModel->image);
                         File::Delete($imagesModel->thumb);
                         $thumb_img = Image::make($image->getRealPath())->resize(50, 50);
+
+                        DirectoryCheckPermission::is_dir_set_permission($this->image_path); 
+                        DirectoryCheckPermission::is_dir_set_permission($this->thumb_path);
+
                         $thumb_img->save($this->thumb_path . '/' . $imagetitle, 100);
                         $image->move($this->image_path, $imagetitle);
                     }
                 }
-                UserLogFileHelper::log_info('update-trade-show', 'Successfully updated.', ['Trade Show Item Title ' . $input['title']]);
+                AdminLogFileHelper::log_info('update-trade-show', 'Successfully updated.', ['Trade Show Item Title ' . $input['title']]);
                 Session::flash('message', 'Successfully added!');
 
             } catch (\Exception $e) {
                 //If there are any exceptions, rollback the transaction`
                 DB::rollback();
-                UserLogFileHelper::log_error('update-trade-show', $e->getMessage(), ['Trade Show Item Title ' . $input['title']]);
+                AdminLogFileHelper::log_error('update-trade-show', $e->getMessage(), ['Trade Show Item Title ' . $input['title']]);
                 Session::flash('danger', $e->getMessage());
             }
         }
@@ -278,12 +292,12 @@ class TradeShowController extends Controller
                 }
 
                 DB::commit();
-                UserLogFileHelper::log_info('delete-trade-show', "Successfully Deleted.", ['Trade Show Title ' . $model->title]);
+                AdminLogFileHelper::log_info('delete-trade-show', "Successfully Deleted.", ['Trade Show Title ' . $model->title]);
                 Session::flash('message', "Successfully Deleted.");
 
             } catch (\Exception $e) {
                 DB::rollback();
-                UserLogFileHelper::log_error('delete-trade-show', $e->getMessage(), ['Trade Show Item Title ' . $model->title]);
+                AdminLogFileHelper::log_error('delete-trade-show', $e->getMessage(), ['Trade Show Item Title ' . $model->title]);
                 Session::flash('danger', $e->getMessage());
 
             }
@@ -292,11 +306,15 @@ class TradeShowController extends Controller
         return redirect()->back();
     }
 
-    public function search_reconditioning()
+    public function search_trade_show()
     {
         $pageTitle = 'Trade Show Information';
         $title = Input::get('title');
-        $data = TradeShow::where('title', 'LIKE', '%' . $title . '%')->orWhere('short_description', 'LIKE', '%' . $title . '%')->paginate(30);
+        $data = TradeShow::where('title', 'LIKE', '%' . $title . '%')
+            ->orWhere('short_description', 'LIKE', '%' . $title . '%')
+            ->orWhere('slug', 'LIKE', '%' . $title . '%')
+            ->orWhere('status', 'LIKE', '%' . $title . '%')
+            ->paginate(30);
 
         //set user activity data
         $action_name = 'search trade show item';

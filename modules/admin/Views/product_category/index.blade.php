@@ -45,7 +45,7 @@
                             @if(isset($data))
                                 @foreach($data as $values)
                                     <tr class="gradeX">
-                                        <td> {{ucfirst($values->title)}} </td>
+                                        <td><a href="{{ route('admin.view.product.category.details', $values->id) }}">  {{ucfirst($values->title)}}</a> </td>
                                         <td>{{ucfirst($values->type)}} </td>
                                         <td>{{$values->status}}</td>
                                         <td>
@@ -71,7 +71,7 @@
 
     <div id="addData" class="modal fade" tabindex="" role="dialog" style="display: none;">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
+            <div class="modal-content add-form">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true" title="click x button for close this entry form">×</button>
                     <h4 class="modal-title" id="myModalLabel">Add Product Category <span style="color: #A54A7B" class="user-guideline" data-content="<em>Must Fill <b>Required</b> Field.    <b>*</b> Put cursor on input field for more informations</em>">(?) </span></h4>
@@ -93,7 +93,7 @@
 
     <div class="modal fade" id="etsbModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
+            <div class="modal-content add-form">
 
             </div>
         </div>

@@ -134,23 +134,29 @@ Route::any('store-page-content', [
     'as' => 'admin.store.page.content',
     'uses' => 'PageContentController@store_page_content'
 ]);
-Route::any('view-page-content/{slug}', [
+Route::any('view-page-content/{id}', [
 //        'middleware' => 'acl_access:admin/page-content/{slug}',
     'as' => 'admin.view.page.content',
     'uses' => 'PageContentController@show'
 ]);
-Route::any('edit-page-content/{slug}', [
+Route::any('view-single-page-content/{id}', [
+//        'middleware' => 'acl_access:admin/page-content/{slug}',
+    'as' => 'admin.view.single.page.content',
+    'uses' => 'PageContentController@show_page'
+]);
+
+Route::any('edit-page-content/{id}', [
 //        'middleware' => 'acl_access:admin/page-content/{slug}',
     'as' => 'admin.edit.page.content',
     'uses' => 'PageContentController@edit'
 ]);
-Route::any('update-page-content/{slug}', [
+Route::any('update-page-content/{id}', [
 //        'middleware' => 'acl_access:admin/update-page-content/{slug}',
     'as' => 'admin.update.page.content',
     'uses' => 'PageContentController@update'
 ]);
 
-Route::get('delete-page-content/{slug}', [
+Route::get('delete-page-content/{id}', [
 //        'middleware' => 'acl_access:admin/delete-page-content/{slug}',
     'as' => 'admin.delete.page.content',
     'uses' => 'PageContentController@destroy'

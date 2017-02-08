@@ -24,13 +24,13 @@ class TradeShowRequest extends FormRequest
      */
     public function rules()
     {
-        $title = Request::input('title')?Request::input('title'):'';
+        $id = Request::input('id')?Request::input('id'):'';
 
         if(empty($title))
         {
             return [
-                'title'         => 'required'.$title,
-                'image'         => 'image|mimes:jpeg,png,jpg,gif|max:5000'.$title,
+                'title'         => 'required'.$id,
+                'image'         => 'image|mimes:jpeg,png,jpg,gif|max:5000'.$id,
             ];
         }else{
             return [

@@ -2,6 +2,7 @@
 
 namespace Modules\Admin\Controllers;
 
+use App\Http\Helpers\DirectoryCheckPermission;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -10,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Input;
 use App\Http\Helpers\ActivityLogs;
-use App\Helpers\UserLogFileHelper;
+use App\Helpers\AdminLogFileHelper;
 use Modules\Admin\Models\Reconditioning;
 use Image;
 use File;
@@ -35,7 +36,9 @@ class ReconditioningController extends Controller
         $this->thumb_path = public_path('uploads/reconditioning/thumb');
         $this->image_relative_path = '/uploads/reconditioning/image';
         $this->thumb_relative_path = '/uploads/reconditioning/thumb';
+
     }
+
 
     //Get and Post method
     protected function isGetRequest()
@@ -96,6 +99,8 @@ class ReconditioningController extends Controller
                 if (Reconditioning::create($input)) {
                     if ($image != null) {
                         $thumb_img = Image::make($image->getRealPath())->resize(50, 50);
+                            DirectoryCheckPermission::is_dir_set_permission($this->image_path);
+                            DirectoryCheckPermission::is_dir_set_permission($this->thumb_path);
                         $thumb_img->save($this->thumb_path . '/' . $imagetitle, 100);
                         $image->move($this->image_path, $imagetitle);
                     }
@@ -109,13 +114,13 @@ class ReconditioningController extends Controller
                 }
 
                 DB::commit();
-                UserLogFileHelper::log_info('store-reconditioning', 'Successfully Added', ['a reconditioning Item Title ' . $input['title']]);
+                AdminLogFileHelper::log_info('store-reconditioning', 'Successfully Added', ['a reconditioning Item Title ' . $input['title']]);
                 Session::flash('message', 'Successfully added!');
 
             } catch (\Exception $e) {
                 //If there are any exceptions, rollback the transaction`
                 DB::rollback();
-                UserLogFileHelper::log_error('store-reconditioning', $e->getMessage(), ['Image Reconditioning service Item Title' . $input['title']]);
+                AdminLogFileHelper::log_error('store-reconditioning', $e->getMessage(), ['Image Reconditioning service Item Title' . $input['title']]);
                 Session::flash('danger', $e->getMessage());
             }
 
@@ -165,6 +170,7 @@ class ReconditioningController extends Controller
     {
         $pageTitle = "Update Reconditioning Informations";
         $data = Reconditioning::where('id', $id)->first();
+        $edit_cons = 'edit';
 
         //set user activity data
         $action_name = 'Edit Reconditioning Service ';
@@ -176,7 +182,8 @@ class ReconditioningController extends Controller
 
         return view('admin::reconditioning.update', [
             'data' => $data,
-            'pageTitle' => $pageTitle
+            'pageTitle' => $pageTitle,
+            'edit_cons' => $edit_cons,
         ]);
     }
 
@@ -220,13 +227,13 @@ class ReconditioningController extends Controller
                         $image->move($this->image_path, $imagetitle);
                     }
                 }
-                UserLogFileHelper::log_info('update-reconditioning', 'Successfully updated.', ['Reconditioning Item Title ' . $input['title']]);
+                AdminLogFileHelper::log_info('update-reconditioning', 'Successfully updated.', ['Reconditioning Item Title ' . $input['title']]);
                 Session::flash('message', 'Successfully added!');
 
             } catch (\Exception $e) {
                 //If there are any exceptions, rollback the transaction`
                 DB::rollback();
-                UserLogFileHelper::log_error('update-reconditioning', $e->getMessage(), ['Reconditioning Item Title ' . $input['title']]);
+                AdminLogFileHelper::log_error('update-reconditioning', $e->getMessage(), ['Reconditioning Item Title ' . $input['title']]);
                 Session::flash('danger', $e->getMessage());
             }
         }
@@ -270,12 +277,12 @@ class ReconditioningController extends Controller
                 }
 
                 DB::commit();
-                UserLogFileHelper::log_info('delete-reconditioning', "Successfully Deleted.", ['Reconditioning Item Title ' . $model->title]);
+                AdminLogFileHelper::log_info('delete-reconditioning', "Successfully Deleted.", ['Reconditioning Item Title ' . $model->title]);
                 Session::flash('message', "Successfully Deleted.");
 
             } catch (\Exception $e) {
                 DB::rollback();
-                UserLogFileHelper::log_error('delete-reconditioning', $e->getMessage(), ['Reconditioning Item Title ' . $model->title]);
+                AdminLogFileHelper::log_error('delete-reconditioning', $e->getMessage(), ['Reconditioning Item Title ' . $model->title]);
                 Session::flash('danger', $e->getMessage());
 
             }
@@ -288,7 +295,11 @@ class ReconditioningController extends Controller
     {
         $pageTitle = 'Reconditioning Service Information';
         $title = Input::get('title');
-        $data = Reconditioning::where('title', 'LIKE', '%' . $title . '%')->orWhere('short_description', 'LIKE', '%' . $title . '%')->orWhere('long_description', 'LIKE', '%' . $title . '%')->paginate(30);
+        $data = Reconditioning::where('title', 'LIKE', '%' . $title . '%')
+            ->orWhere('short_description', 'LIKE', '%' . $title . '%')
+            ->orWhere('long_description', 'LIKE', '%' . $title . '%')
+            ->orWhere('status', 'LIKE', '%' . $title . '%')
+            ->paginate(30);
 
         //set user activity data
         $action_name = 'search reconditioning service item';

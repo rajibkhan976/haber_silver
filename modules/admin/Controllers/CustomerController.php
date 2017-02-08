@@ -4,6 +4,7 @@
 
 namespace Modules\Admin\Controllers;
 
+use App\Helpers\AdminLogFileHelper;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -106,13 +107,13 @@ class CustomerController extends Controller
             }
 
             DB::commit();
-            //AdminLogFileHelper::log_info('store-customer', 'Successfully Added', ['Customer Name '.$input_data['first_name'] .@$input['last_name']]);
+            AdminLogFileHelper::log_info('store-customer', 'Successfully Added', ['Customer Name '.$input_data['first_name'] .@$input['last_name']]);
             Session::flash('message', 'Successfully added!');
 
         } catch (\Exception $e) {
             //If there are any exceptions, rollback the transaction`
             DB::rollback();
-            //AdminLogFileHelper::log_error('store-company', $e->getMessage(), ['Customer Name'.@$input_data['first_name'] .@$input_data['last_name']]);
+            AdminLogFileHelper::log_error('store-customer', $e->getMessage(), ['Customer Name'.@$input_data['first_name'] .@$input_data['last_name']]);
             Session::flash('danger', $e->getMessage());
 
         }
@@ -145,7 +146,7 @@ class CustomerController extends Controller
         $action_url = 'user/view-customer';
         $action_detail = @\Auth::user()->username.' '. 'view customer by :: '.@$data->title;
         $action_table = 'customer';
-        //store into user_activity table
+        #store into user_activity table
         $user_act = ActivityLogs::set_users_activity($action_name, $action_url, $action_detail, $action_table);
 
 
@@ -169,6 +170,7 @@ class CustomerController extends Controller
             ->join('company', 'company.id', '=', 'customer.company_id')
             ->select('customer.*', 'company.id as co_id', 'company.name')
             ->where('customer.id',$id)->first();
+        $edit_cons = 'edit';
 
         //set user activity data
         $action_name = 'Edit customer';
@@ -180,7 +182,8 @@ class CustomerController extends Controller
 
         return view('admin::customer.update', [
             'data' => $data,
-            'pageTitle'=> $pageTitle
+            'pageTitle'=> $pageTitle,
+            'edit_cons' => $edit_cons,
         ]);
     }
 
@@ -225,7 +228,7 @@ class CustomerController extends Controller
         try {
             $model->update($input_data);
             DB::commit();
-            //AdminLogFileHelper::log_info('update-customer', 'Successfully updated.', ['Customer Name '.@$input['first_name'] .@$input['last_name']]);
+            AdminLogFileHelper::log_info('update-customer', 'Successfully updated.', ['Customer Name '.@$input['first_name'] .@$input['last_name']]);
             Session::flash('message', 'Successfully Updated!');
 
 
@@ -243,7 +246,7 @@ class CustomerController extends Controller
         }catch (\Exception $e) {
             //If there are any exceptions, rollback the transaction`
             DB::rollback();
-            //AdminLogFileHelper::log_error('update-customer', $e->getMessage(), ['Customer Name '.@$input['first_name'] .@$input['last_name']]);
+            AdminLogFileHelper::log_error('update-customer', $e->getMessage(), ['Customer Name '.@$input['first_name'] .@$input['last_name']]);
             Session::flash('danger', $e->getMessage());
         }
 
@@ -281,13 +284,13 @@ class CustomerController extends Controller
                 }
 
                 DB::commit();
-                //AdminLogFileHelper::log_info('delete-customer', "Successfully Deleted.", ['Customer Name '.$model->first_name .$model->last_name]);
+                AdminLogFileHelper::log_info('delete-customer', "Successfully Deleted.", ['Customer Name '.$model->first_name .$model->last_name]);
                 Session::flash('message', "Successfully Deleted.");
 
 
             } catch(\Exception $e) {
                 DB::rollback();
-                //AdminLogFileHelper::log_error('delete-customer', $e->getMessage(), ['Customer Name '.$model->first_name .$model->last_name]);
+                AdminLogFileHelper::log_error('delete-customer', $e->getMessage(), ['Customer Name '.$model->first_name .$model->last_name]);
                 Session::flash('danger',$e->getMessage());
 
             }

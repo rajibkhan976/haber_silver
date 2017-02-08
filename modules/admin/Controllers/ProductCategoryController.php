@@ -4,6 +4,8 @@
 
 namespace Modules\Admin\Controllers;
 
+use App\Helpers\AdminLogFileHelper;
+use App\Http\Helpers\DirectoryCheckPermission;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -22,6 +24,23 @@ use Validator;
 
 class ProductCategoryController extends Controller
 {
+
+
+    protected $image_path;
+    protected $thumb_path;
+    protected $image_relative_path;
+    protected $thumb_relative_path;
+
+    public function __construct()
+    {
+        $this->image_path = public_path('uploads/product_category/image');
+        $this->thumb_path = public_path('uploads/product_category/thumb');
+        $this->image_relative_path = '/uploads/product_category/image';
+        $this->thumb_relative_path = '/uploads/product_category/thumb';
+    }
+
+
+
 
     /**
      * Display a listing of the resource.
@@ -81,10 +100,12 @@ class ProductCategoryController extends Controller
                     $validator = Validator::make(array('images' => $file), $rules);
 
                     if ($validator->passes()) {
-                        $destinationPath1 = public_path('uploads/product_category/image');
-                        $destinationPath2 = public_path('uploads/product_category/thumb');
+                        $destinationPath1 = $this->image_path;
+                        $destinationPath2 = $this->thumb_path;
                         $imagename = $file->getClientOriginalName();
                         $thumb_img = Image::make($file->getRealPath())->resize(50, 50);
+                                DirectoryCheckPermission::is_dir_set_permission($this->image_path);
+                                DirectoryCheckPermission::is_dir_set_permission($this->thumb_path);
                         $file->move($destinationPath1, $imagename);
                         $thumb_img->save($destinationPath2 . '/' . $imagename, 100);
                         $images_name[] .= $imagename;
@@ -110,8 +131,8 @@ class ProductCategoryController extends Controller
                     $product_category_id = $model->id;
                     if($files != "") {
                         foreach ($images_name as $image_name) {
-                            $input_image = '/uploads/product_category/image' . '/' . $image_name;
-                            $input_thumb = '/uploads/product_category/thumb' . '/' . $image_name;
+                            $input_image = $this->image_relative_path . '/' . $image_name;
+                            $input_thumb = $this->thumb_relative_path . '/' . $image_name;
 
                             $model2 = new ProductCategoryImage();
                             $model2->product_cat_id = $product_category_id;
@@ -140,13 +161,13 @@ class ProductCategoryController extends Controller
                 $user_act = ActivityLogs::set_users_activity($action_name, $action_url, $action_detail, $action_table);
 
                 DB::commit();
-                //AdminLogFileHelper::log_info('store-product-category', 'Successfully Added', ['Product Category Name '.$input_data['title']]);
+                AdminLogFileHelper::log_info('store-product-category', 'Successfully Added', ['Product Category Name '.$input['title']]);
                 Session::flash('message', 'Successfully added!');
 
             } catch (\Exception $e) {
                 //If there are any exceptions, rollback the transaction`
                 DB::rollback();
-                //AdminLogFileHelper::log_error('store-product-category', $e->getMessage(), ['Product Category Name'.$input_data['title']]);
+                AdminLogFileHelper::log_error('store-product-category', $e->getMessage(), ['Product Category Name'.$input['title']]);
                 Session::flash('danger', $e->getMessage());
 
             }
@@ -207,6 +228,7 @@ class ProductCategoryController extends Controller
     {
         $pageTitle = "Update Product Category Informations";
         $data = ProductCategory::where('id',$id)->first();
+        $edit_cons = 'edit';
 
 
         //set user activity data
@@ -219,7 +241,8 @@ class ProductCategoryController extends Controller
 
         return view('admin::product_category.update', [
             'data' => $data,
-            'pageTitle'=> $pageTitle
+            'pageTitle'=> $pageTitle,
+            'edit_cons' => $edit_cons,
         ]);
     }
 
@@ -258,8 +281,8 @@ class ProductCategoryController extends Controller
                         $validator = Validator::make(array('images' => $file), $rules);
 
                         if ($validator->passes()) {
-                            $destinationPath1 = public_path('uploads/product_category/image');
-                            $destinationPath2 = public_path('uploads/product_category/thumb');
+                            $destinationPath1 =$this->image_path;
+                            $destinationPath2 = $this->thumb_path;
                             $imagename = $file->getClientOriginalName();
                             $thumb_img = Image::make($file->getRealPath())->resize(50, 50);
                             $file->move($destinationPath1, $imagename);
@@ -284,8 +307,8 @@ class ProductCategoryController extends Controller
                         $product_category_id = $model->id;
                         if ($files != "") {
                             foreach ($images_name as $image_name) {
-                                $input_image = '/uploads/product_category/image' . '/' . $image_name;
-                                $input_thumb = '/uploads/product_category/thumb' . '/' . $image_name;
+                                $input_image = $this->image_relative_path . '/' . $image_name;
+                                $input_thumb = $this->thumb_relative_path . '/' . $image_name;
 
                                 $model2 = new ProductCategoryImage();
                                 $model2->product_cat_id = $product_category_id;
@@ -314,13 +337,13 @@ class ProductCategoryController extends Controller
                     $user_act = ActivityLogs::set_users_activity($action_name, $action_url, $action_detail, $action_table);
 
                     DB::commit();
-                    //AdminLogFileHelper::log_info('store-product-category', 'Successfully Added', ['Product Category Name '.$input_data['title']]);
+                    AdminLogFileHelper::log_info('update-product-category', 'Successfully Added', ['Product Category Name '.$input['title']]);
                     Session::flash('message', 'Successfully Updated!');
 
                 } catch (\Exception $e) {
                     //If there are any exceptions, rollback the transaction`
                     DB::rollback();
-                    //AdminLogFileHelper::log_error('store-product-category', $e->getMessage(), ['Product Category Name'.$input_data['title']]);
+                    AdminLogFileHelper::log_error('update-product-category', $e->getMessage(), ['Product Category Name'.$input['title']]);
                     Session::flash('danger', $e->getMessage());
 
                 }
@@ -395,13 +418,13 @@ class ProductCategoryController extends Controller
                 $user_act = ActivityLogs::set_users_activity($action_name, $action_url, $action_detail, $action_table);
 
                 DB::commit();
-                //AdminLogFileHelper::log_info('store-product-category', 'Successfully Added', ['Product Category Name '.$input_data['title']]);
+                AdminLogFileHelper::log_info('update-product-category', 'Successfully Added', ['Product Category Name '.$input['title']]);
                 Session::flash('message', 'Successfully Updated!');
 
             } catch (\Exception $e) {
                 //If there are any exceptions, rollback the transaction`
                 DB::rollback();
-                //AdminLogFileHelper::log_error('store-product-category', $e->getMessage(), ['Product Category Name'.$input_data['title']]);
+                AdminLogFileHelper::log_error('update-product-category', $e->getMessage(), ['Product Category Name'.$input['title']]);
                 Session::flash('danger', $e->getMessage());
 
             }
@@ -447,13 +470,13 @@ class ProductCategoryController extends Controller
                 }
 
                 DB::commit();
-                UserLogFileHelper::log_info('delete-product-category', "Successfully Deleted.", ['Product Category '.$model->title]);
+                AdminLogFileHelper::log_info('delete-product-category', "Successfully Deleted.", ['Product Category '.$model->title]);
                 Session::flash('message', "Successfully Deleted.");
 
 
             } catch(\Exception $e) {
                 DB::rollback();
-                UserLogFileHelper::log_error('delete-product-category', $e->getMessage(), ['Product Category Title '.$model->title]);
+                AdminLogFileHelper::log_error('delete-product-category', $e->getMessage(), ['Product Category Title '.$model->title]);
                 Session::flash('danger',$e->getMessage());
 
             }

@@ -196,6 +196,7 @@ class RoleController extends Controller
     {
         $pageTitle = "Update Role Informations";              
         $data = Role::where('slug',$slug)->first();
+        $edit_cons = 'edit';
 
 
         //set user activity data
@@ -208,7 +209,8 @@ class RoleController extends Controller
 
         return view('user::role.update', [
             'data' => $data,
-            'pageTitle'=> $pageTitle
+            'pageTitle'=> $pageTitle,
+            'edit_cons'=>$edit_cons,
         ]);
                    
     }

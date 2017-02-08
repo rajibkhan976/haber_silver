@@ -1,5 +1,5 @@
 <div class="modal-header">
-    <a href="{{ URL::previous() }}" class="close" type="button" title="click x button for close this entry form"> × </a>
+    <a href="{{ URL::previous() }}" class="close" type="button" title="click x button for close"> × </a>
     <h4 class="modal-title" id="myModalLabel">{{$pageTitle}}</h4>
 </div>
 
@@ -7,16 +7,20 @@
     <div style="padding: 30px;margin-left: 80px">
         <table id="" class="table table-bordered table-hover table-striped">           
             <tr>
-                <td> 
-                    <?php
-                      if(isset($data->video_file)) {
-                        $file_name = explode( '.',$data->video_file);                            
-                    ?> 
-                        <video width="600" controls>
+                <td align="center"> 
+                    
+                    @if($data->video_file != 'not_found') 
+                        @php 
+                          $file_name = explode( '.',$data->video_file); 
+                        @endphp
+                     
+                        <video width="550" height="360" controls poster="{{asset($data->caption_image)}}">
                            <source src="{{asset($data->video_file)}}" type="video/{{end($file_name)}}">
                         </video>
-
-                    <?php } ?>
+                    @else
+                        <video width="550" height="360" poster="{{asset($video_not_found)}}">
+                        </video>                         
+                    @endif  
                 </td>
             </tr>
            

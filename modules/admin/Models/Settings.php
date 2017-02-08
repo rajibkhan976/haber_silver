@@ -21,6 +21,7 @@ class Settings extends Model
         'last_number',
         'increment',
         'status',
+        'code',
     ];
 
 

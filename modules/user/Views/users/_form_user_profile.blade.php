@@ -79,7 +79,7 @@
 
 
             <div class="form-margin-btn pull-right">
-                {!! Form::submit('Save Changes', ['id'=>'btn-disabled','class' => 'btn btn-primary ','data-placement'=>'top','data-content'=>'click save changes button for save role information']) !!}
+                {!! Form::submit(isset($edit_cons)?'Update':'Save', ['id'=>'btn-disabled','class' => 'btn btn-primary ','data-placement'=>'top','data-content'=>'click save changes button for save role information']) !!}
                 <a href="{{route('user.lists')}}" class=" btn btn-default " data-placement="top" data-content="click close button for close this entry form">Close</a>
             </div>
 

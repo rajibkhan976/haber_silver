@@ -17,9 +17,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Input;
 use App\Http\Helpers\ActivityLogs;
-use App\Helpers\UserLogFileHelper;
+use App\Helpers\AdminLogFileHelper;
 use Modules\Admin\Models\VideoMaster;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use App\Http\Helpers\DirectoryCheckPermission;
 use Image;
 use File;
 use Validator;
@@ -32,6 +33,29 @@ class VideoMasterController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    protected $image_path;
+    protected $thumb_path;
+    protected $video_path;
+    protected $image_store_path;
+    protected $thumb_store_path;
+    protected $video_store_path;
+
+    public function __construct()
+    { 
+        $this->image_path = public_path('uploads/video-master/images/');
+        $this->thumb_path = public_path('uploads/video-master/thumbs/');
+        $this->video_path = public_path('uploads/video-master/videos/');
+
+        $this->image_store_path = '/uploads/video-master/images/';
+        $this->thumb_store_path = '/uploads/video-master/thumbs/';
+        $this->video_store_path = '/uploads/video-master/videos/';
+
+            DirectoryCheckPermission::is_dir_set_permission($this->image_path);
+            DirectoryCheckPermission::is_dir_set_permission($this->thumb_path);
+            DirectoryCheckPermission::is_dir_set_permission($this->video_path);
+    }
+
     public function index()
     { 
         $pageTitle = "Video Master List";       
@@ -52,9 +76,7 @@ class VideoMasterController extends Controller
             'pageTitle'=> $pageTitle,
             
         ]);
-    }
-
-   
+    }   
    
     /**
      * Store a newly created resource in storage.
@@ -83,24 +105,27 @@ class VideoMasterController extends Controller
             $imagename = $title.'-'.time().'.'.$image->getClientOriginalExtension();
 
             //For Save image & thumb name into database
-            $caption_original_image = '/uploads/video-master/images/'.$imagename;
-            $caption_original_thumb = '/uploads/video-master/thumbs/'.$imagename; 
-            /*---------------------------------------------------------------------*/
-            $destinationPath1 = public_path('uploads/video-master/images/');
-            $destinationPath2 = public_path('uploads/video-master/thumbs/'); 
+            $caption_original_image = $this->image_store_path.$imagename;
+            $caption_original_thumb = $this->thumb_store_path.$imagename; 
+           
+            //For upload image & thumb 
             $thumb_img = Image::make($image->getRealPath())->resize(50, 50);
-            $thumb_img->save($destinationPath2.$imagename,100);
-            $image->move($destinationPath1, $imagename);
+            $thumb_img->save($this->thumb_path.$imagename,100);
+            $image->move($this->image_path, $imagename);
         
+        } else {
+            $caption_original_image = 'not_found'; 
+            $caption_original_thumb = 'not_found';
         } 
         
         /*-----------------video upload------------------*/
         if (Input::hasFile('video_file')) {
-            $video = $request->file('video_file');                 
-            $destinationPathVideo = public_path('uploads/video-master/videos/');  
+            $video = $request->file('video_file');
             $videoname = $title.'-'.time().'.'.$video->getClientOriginalExtension();      
-            $video_file = '/uploads/video-master/videos/'.$videoname;
-            $video->move($destinationPathVideo, $videoname);
+            $video_file = $this->video_store_path.$videoname;
+            $video->move($this->video_path, $videoname);
+        } else {
+           $video_file = 'not_found'; 
         } 
         
         $input_data = [
@@ -130,13 +155,13 @@ class VideoMasterController extends Controller
             }
 
             DB::commit();
-            UserLogFileHelper::log_info('store-video-master', 'Successfully Added', ['Company Name '.$request->title]);
+            AdminLogFileHelper::log_info('store-video-master', 'Successfully Added', ['Video Master Title '.$request->title]);
             Session::flash('message', 'Successfully added!');
             
         } catch (\Exception $e) {
             //If there are any exceptions, rollback the transaction`
             DB::rollback();
-            UserLogFileHelper::log_error('store-video-master', $e->getMessage(), ['Video Master Title'.$request->title]);
+            AdminLogFileHelper::log_error('store-video-master', $e->getMessage(), ['Video Master Title'.$request->title]);
             Session::flash('danger', $e->getMessage());
       
         }
@@ -185,6 +210,7 @@ class VideoMasterController extends Controller
     {
         $pageTitle = "Update Video Master Informations";              
         $data = VideoMaster::where('id',$id)->first();
+        $edit_cons = 'edit';
 
         //set user activity data
         $action_name = 'Edit Video Master';
@@ -196,7 +222,8 @@ class VideoMasterController extends Controller
 
         return view('admin::video_master.update', [
             'data' => $data,
-            'pageTitle'=> $pageTitle
+            'pageTitle'=> $pageTitle,
+            'edit_cons' => $edit_cons,
         ]);
     }
 
@@ -234,18 +261,23 @@ class VideoMasterController extends Controller
             $imagename = $request->title.'-'.time().'.'.$image->getClientOriginalExtension();
 
             //For Save image & thumb name into database
-            $caption_original_image = '/uploads/video-master/images/'.$imagename;
-            $caption_original_thumb = '/uploads/video-master/thumbs/'.$imagename; 
+    /*        $caption_original_image = '/uploads/video-master/images/'.$imagename;
+            $caption_original_thumb = '/uploads/video-master/thumbs/'.$imagename; */
+
+            //For Save image & thumb name into database
+            $caption_original_image = $this->image_store_path.$imagename;
+            $caption_original_thumb = $this->thumb_store_path.$imagename; 
             /*---------------------------------------------------------------------*/
-            $destinationPath1 = public_path('uploads/video-master/images/');;
-            $destinationPath2 = public_path('uploads/video-master/thumbs/');        
+            /*$destinationPath1 = public_path('uploads/video-master/images/');;
+            $destinationPath2 = public_path('uploads/video-master/thumbs/');       */ 
             
-            File::Delete($destinationPath1.'/'.$video_master_query->caption_image);
-            File::Delete($destinationPath2.'/'.$video_master_query->caption_thumb);
+            File::Delete($this->image_path.$video_master_query->caption_image);
+            File::Delete($this->thumb_path.$video_master_query->caption_thumb);
             
+            //For upload image & thumb 
             $thumb_img = Image::make($image->getRealPath())->resize(50, 50);
-            $thumb_img->save($destinationPath2.'/'.$imagename,100);
-            $image->move($destinationPath1, $imagename);
+            $thumb_img->save($this->thumb_path.$imagename,100);
+            $image->move($this->image_path, $imagename);
 
         }else{
              
@@ -265,11 +297,12 @@ class VideoMasterController extends Controller
                 return redirect()->back()->withErrors($validator)->withInput();
             }  
 
-            $destinationPathVideo = public_path('uploads/video-master/videos/');  
-            $videoname = $video_master_title.'-'.time().'.'.$video->getClientOriginalExtension();    
-            $video_file = '/uploads/video-master/videos/'.$videoname;
-            $video->move($destinationPathVideo, $videoname);
-            File::Delete($destinationPathVideo.'/'.$video_master_query->video_file);
+            $video = $request->file('video_file');
+            $videoname = $video_master_title.'-'.time().'.'.$video->getClientOriginalExtension();      
+            $video_file = $this->video_store_path.$videoname;
+            $video->move($this->video_path, $videoname);
+
+            File::Delete($this->video_path.$video_master_query->video_file);          
             
         } else {
             $video_file = $video_master_query->video_file;
@@ -299,13 +332,13 @@ class VideoMasterController extends Controller
             try {
                 $model->update($input_data);
                 DB::commit();
-                UserLogFileHelper::log_info('update-video-master', 'Successfully updated.', ['Video Master '.$request->title]);
+                AdminLogFileHelper::log_info('update-video-master', 'Successfully updated.', ['Video Master '.$request->title]);
                 Session::flash('message', 'Successfully Updated!');
 
             }catch (\Exception $e) {
                 //If there are any exceptions, rollback the transaction`
                 DB::rollback();
-                UserLogFileHelper::log_error('update-video-master', $e->getMessage(), ['Video Master '.$request->title]);
+                AdminLogFileHelper::log_error('update-video-master', $e->getMessage(), ['Video Master '.$request->title]);
                 Session::flash('danger', $e->getMessage());
             }
             /*...................................................................*/    
@@ -333,30 +366,32 @@ class VideoMasterController extends Controller
         if($id != null){
             $model = VideoMaster::where('id',$id)->first();
             DB::beginTransaction();
-            try {
-                
-                $delete = VideoMaster::destroy($id); 
-                
-                if($delete)
-                {
+            try { 
+
+                if ($model->status == 'active') {
+                    $model->status = 'inactive';
+                } else {
+                    $model->status = 'active';
+                }
+
+                if ($model->save()) {
                     //set data
-                    $action_name = 'delete video master';
+                    $action_name = 'cancel the video master';
                     $action_url = 'admin/delete-video-master';
-                    $action_detail = @\Auth::user()->username.' '. 'create a video master :: '.$model->title;
+                    $action_detail = @\Auth::user()->username . ' ' . 'deletes a video master, title :: ' . $model->title;
                     $action_table = 'video_master';
                     //store into user_activity table
                     $user_act = ActivityLogs::set_users_activity($action_name, $action_url, $action_detail, $action_table);
-
                 }
 
                 DB::commit();
-                UserLogFileHelper::log_info('delete-video-master', "Successfully Deleted.", ['Video Master Title '.$model->title]);
+                AdminLogFileHelper::log_info('delete-video-master', "Successfully Deleted.", ['Video Master Title ' . $model->title]);
                 Session::flash('message', "Successfully Deleted.");
 
 
             } catch(\Exception $e) {
                 DB::rollback();
-                UserLogFileHelper::log_error('delete-video-master', $e->getMessage(), ['Video Master Title '.$model->title]);
+                AdminLogFileHelper::log_error('delete-video-master', $e->getMessage(), ['Video Master Title '.$model->title]);
                 Session::flash('danger',$e->getMessage());
 
             }

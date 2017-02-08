@@ -3,7 +3,7 @@
     <div class="col-lg-offset-0 col-md-12">
 
             <div class="row">
-                <div class="col-lg-offset-0 col-md-6">
+                <div class="col-lg-offset-0 col-md-6 frm-left-field">
                     <div class="form-group">
                         {!! Form::text('title',Input::old('title'),['id'=>'title', 'class' => 'form-control', 'required'=> 'required', 'data-rule-minlength'=>"2"]) !!}
                         {!! Form::label('title','Title: *') !!}
@@ -11,7 +11,7 @@
                     <span class="text-danger">{!! $errors->first('title') !!}</span>
                 </div>
 
-                <div class="col-lg-offset-0 col-md-6">
+                <div class="col-lg-offset-0 col-md-6 frm-right-field">
                     <div class="form-group">
                         {!! Form::text('alt',Input::old('alt'),['id'=>'alt', 'class' => 'form-control', 'required'=> 'required', 'data-rule-minlength'=>"2"]) !!}
                         {!! Form::label('alt','Alt: *') !!}
@@ -21,7 +21,7 @@
             </div>
 
             <div class="row">
-                <div class="col-lg-offset-0 col-md-6">
+                <div class="col-lg-offset-0 col-md-6 frm-left-field">
                     <div class="form-group">
                         {!! Form::label('status', 'Status:') !!}
                         {!! Form::Select('status',array('active'=>'Active','inactive'=>'Inactive','cancel'=>'Cancel'),Input::old('status'),['id'=>'status', 'class'=>'form-control ','required']) !!}
@@ -29,7 +29,7 @@
                     <span class="text-danger">{!! $errors->first('status') !!}</span>
                 </div>
 
-                    <div class="col-lg-offset-0 col-md-4">
+                    <div class="col-lg-offset-0 col-md-4 frm-right-field">
                         <div class="form-group">
                                 <div style="float: left; width: 80%;">
                                     {{ Form::file('images', ['files'=>true, 'class' => 'field']) }}
@@ -46,15 +46,18 @@
                     </div>
 
             </div>
+                @if(isset($pc_data))
+                    <input name="product_cat_id" type="hidden" value="{{@$pc_data->id}}">
+                @else
+                    <input name="product_cat_id" type="hidden" value="{{@$data->product_cat_id}}">
+                @endif
 
-            <input name="product_cat_id" type="hidden" value="{{@$pc_data->id}}">
 
 
 
-
-
+<p>&nbsp;</p>
             <div class="form-margin-btn pull-right">
-                {!! Form::submit('Save Changes', ['id'=>'btn-disabled','class' => 'btn btn-primary ','data-placement'=>'top','data-content'=>'click save changes button for save role information']) !!}
+                {!! Form::submit(isset($edit_cons)?'Update':'Save', ['id'=>'btn-disabled','class' => 'btn btn-primary ','data-placement'=>'top','data-content'=>'click save changes button for save role information']) !!}
                 <a href="{{route('admin.index.product.category')}}" class=" btn btn-default " data-placement="top" data-content="click close button for close this entry form">Close</a>
             </div>
 

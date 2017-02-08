@@ -42,4 +42,9 @@ class ProductImage extends Model
         });
     }
 
+    public function product()
+    {
+        return $this->belongsTo('Modules\Admin\Models\Product', 'product_id', 'id');
+    }
+
 }

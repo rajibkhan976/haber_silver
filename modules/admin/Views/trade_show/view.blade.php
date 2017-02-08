@@ -12,7 +12,12 @@
             </tr>
             <tr>
 
-                <td colspan="2">@if(isset($data->image)) <img class="img-responsive" src="{{ $data->image }}"/> @endif
+                <td colspan="2">
+                    @if(isset($data->image) && !empty($data->image))
+                        <img class="img-responsive" src="{{ $data->image }}"/>
+                    @else
+                        <img class="img-responsive" src="/{{ $no_image }}">
+                    @endif
                 </td>
             </tr>
             <tr>
@@ -39,7 +44,6 @@
     <a href="{{route('admin.trade.show')}}" class="btn btn-default" type="button" data-placement="top"
        data-content="click close button for close this entry form"> Close </a>
 </div>
-
 
 <script>
     $(".btn").popover({trigger: "manual", html: true, animation: false})

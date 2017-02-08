@@ -4,6 +4,8 @@
 
 namespace Modules\Admin\Controllers;
 
+use App\Helpers\AdminLogFileHelper;
+use App\Http\Helpers\DirectoryCheckPermission;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -20,6 +22,26 @@ use File;
 
 class CompanyController extends Controller
 {
+
+    protected $image_path;
+    protected $thumb_path;
+    protected $image_relative_path;
+    protected $thumb_relative_path;
+
+
+    public function __construct()
+    {
+        $this->image_path = public_path('uploads/company/letter_head_image');
+        $this->thumb_path = public_path('uploads/company/letter_head_thumb');
+        $this->image_relative_path = '/uploads/company/letter_head_image';
+        $this->thumb_relative_path = '/uploads/company/letter_head_thumb';
+
+    }
+
+
+
+
+
 
     /**
      * Display a listing of the resource.
@@ -74,12 +96,13 @@ class CompanyController extends Controller
                     $image = $request->file('letter_head_image');
                     $imagename = $company_name.'.'.$image->getClientOriginalExtension();  
 
-                    $destinationPath1 = public_path('uploads/company/letter_head_image');
-                    $destinationPath2 = public_path('uploads/company/letter_head_thumb');                    
+                    $destinationPath1 = $this->image_path;
+                    $destinationPath2 = $this->thumb_path;
 
                     $thumb_img = Image::make($image->getRealPath())->resize(50, 50);
+                        DirectoryCheckPermission::is_dir_set_permission($this->image_path);
+                        DirectoryCheckPermission::is_dir_set_permission($this->thumb_path);
                     $thumb_img->save($destinationPath2.'/'.$imagename,100);
-
                     $image->move($destinationPath1, $imagename);
 
 
@@ -97,8 +120,8 @@ class CompanyController extends Controller
                     'mark_up_a'         =>  $input['mark_up_a'],
                     'mark_up_b'         =>  $input['mark_up_b'],
                     'mark_up_c'         =>  $input['mark_up_c'],
-                    'letter_head_image' =>  '/uploads/company/letter_head_image'.'/'.$imagename,
-                    'letter_head_thumb' =>  '/uploads/company/letter_head_thumb'.'/'.$imagename,
+                    'letter_head_image' =>  $this->image_relative_path .'/'.$imagename,
+                    'letter_head_thumb' =>  $this->thumb_relative_path .'/'.$imagename,
                     'letter_head_text'  =>  $input['letter_head_text'],
                     'letter_head_footer'=>  $input['letter_head_footer'],
                     'status'            =>  $input['status'],
@@ -120,13 +143,13 @@ class CompanyController extends Controller
                 }
 
                 DB::commit();
-                UserLogFileHelper::log_info('store-company', 'Successfully Added', ['Company Name '.$input_data['name']]);
+                AdminLogFileHelper::log_info('store-company', 'Successfully Added', ['Company Name '.$input_data['name']]);
                 Session::flash('message', 'Successfully added!');
                 
             } catch (\Exception $e) {
                 //If there are any exceptions, rollback the transaction`
                 DB::rollback();
-                UserLogFileHelper::log_error('store-company', $e->getMessage(), ['Company Name'.$input_data['name']]);
+                AdminLogFileHelper::log_error('store-company', $e->getMessage(), ['Company Name'.$input_data['name']]);
                 Session::flash('danger', $e->getMessage());
           
             }
@@ -180,7 +203,7 @@ class CompanyController extends Controller
     {
         $pageTitle = "Update Company Informations";              
         $data = Company::where('id',$id)->first();
-
+        $edit_cons = 'edit';
 
         //set user activity data
         $action_name = 'Edit Company';
@@ -192,7 +215,8 @@ class CompanyController extends Controller
 
         return view('admin::company.update', [
             'data' => $data,
-            'pageTitle'=> $pageTitle
+            'pageTitle'=> $pageTitle,
+            'edit_cons' => $edit_cons,
         ]);
     }
 
@@ -225,11 +249,11 @@ class CompanyController extends Controller
             $imagename = $company_name.'.'.$image->getClientOriginalExtension();
 
                 //For Save image & thumb name into database
-                $letter_head_image = '/uploads/company/letter_head_image'.'/'.$imagename;
-                $letter_head_thumb = '/uploads/company/letter_head_thumb'.'/'.$imagename;  
+                $letter_head_image = $this->image_relative_path .'/'.$imagename;
+                $letter_head_thumb = $this->thumb_relative_path .'/'.$imagename;
                 /*---------------------------------------------------------------------*/
-            $destinationPath1 = public_path('uploads/company/letter_head_image');
-            $destinationPath2 = public_path('uploads/company/letter_head_thumb');        
+            $destinationPath1 = $this->image_path;
+            $destinationPath2 = $this->thumb_path;
             
             File::Delete($destinationPath1.'/'.$imagename);
             File::Delete($destinationPath1.'/'.$imagename);

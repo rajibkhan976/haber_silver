@@ -24,7 +24,7 @@
     <div class="row">
         <div class="col-lg-offset-0 col-md-12">
             <div class="form-margin-btn pull-right">
-                {!! Form::submit('Save changes', ['class' => 'btn btn-primary pull-right','data-placement'=>'top','data-content'=>'click save changes button for save role information']) !!}&nbsp;
+                {!! Form::submit(isset($edit_cons)?'Update':'Save', ['class' => 'btn btn-primary pull-right','data-placement'=>'top','data-content'=>'click save changes button for save role information']) !!}&nbsp;
                 <a href="{{route('user.role')}}" class=" btn btn-default" data-placement="top" data-content="click close button for close this entry form">Close</a>
             </div>
         </div>

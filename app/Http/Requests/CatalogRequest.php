@@ -33,7 +33,7 @@ class CatalogRequest extends FormRequest
         {
             return [
                 'title'   => 'required|unique:roles,title,' . $title,
-                'file'    => 'file|mimes:pdf|max:1024'.$file,
+                'file'    => 'file|mimes:pdf|max:20480'.$file,
                 'image'   => 'image|mimes:jpeg,png,jpg,gif|max:1024'.$image,
             ];
         }else{

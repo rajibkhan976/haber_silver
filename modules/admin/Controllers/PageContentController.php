@@ -2,6 +2,7 @@
 
 namespace Modules\Admin\Controllers;
 
+use App\Http\Helpers\DirectoryCheckPermission;
 use Backpack\PageManager\app\Models\Page;
 use Illuminate\Http\Request;
 use App\Http\Requests;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Input;
 use App\Http\Helpers\ActivityLogs;
-use App\Helpers\UserLogFileHelper;
+use App\Helpers\AdminLogFileHelper;
 use Modules\Admin\Models\PageContent;
 use Image;
 use File;
@@ -38,6 +39,7 @@ class PageContentController extends Controller
         $this->image_relative_path = '/uploads/page_content/image';
         $this->thumb_relative_path = '/uploads/page_content/thumb';
     }
+
 
     //Get and Post method
     protected function isGetRequest()
@@ -98,6 +100,8 @@ class PageContentController extends Controller
             if (PageContent::create($input)) {
                 if ($image != null) {
                     $thumb_img = Image::make($image->getRealPath())->resize(50, 50);
+                        DirectoryCheckPermission::is_dir_set_permission($this->image_path);
+                        DirectoryCheckPermission::is_dir_set_permission($this->thumb_path);
                     $thumb_img->save($this->thumb_path . '/' . $imagetitle, 100);
                     $image->move($this->image_path, $imagetitle);
                 }
@@ -112,13 +116,13 @@ class PageContentController extends Controller
 
             DB::commit();
 
-            UserLogFileHelper::log_info('store-page-content', 'Successfully Added', ['a page content, Type::  ' . $input['type']]);
+            AdminLogFileHelper::log_info('store-page-content', 'Successfully Added', ['a page content, Type::  ' . $input['type']]);
             Session::flash('message', 'Successfully added!');
 
         } catch (\Exception $e) {
             //If there are any exceptions, rollback the transaction`
             DB::rollback();
-            UserLogFileHelper::log_error('store-page-content', $e->getMessage(), ['Page content Type' . $input['type']]);
+            AdminLogFileHelper::log_error('store-page-content', $e->getMessage(), ['Page content Type' . $input['type']]);
             Session::flash('danger', $e->getMessage());
 
         }
@@ -156,6 +160,35 @@ class PageContentController extends Controller
         ]);
     }
 
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show_page($id)
+    {
+        $pageTitle = 'View Page Content Informations';
+        $data = PageContent::where('id', $id)->first();
+
+        //dd($data);
+
+        //set user activity data
+        $action_name = 'View Page Content';
+        $action_url = 'admin/view-page-content';
+        $action_detail = @\Auth::user()->username . ' ' . 'view a page content, type :: ' . @$data->type;
+        $action_table = 'Page Content';
+        //store into user_activity table
+        $user_act = ActivityLogs::set_users_activity($action_name, $action_url, $action_detail, $action_table);
+
+
+        return view('admin::page_content.pages', [
+            'data' => $data,
+            'pageTitle' => $pageTitle
+        ]);
+    }
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -166,7 +199,7 @@ class PageContentController extends Controller
     {
         $pageTitle = "Update Page Content Informations";
         $data = PageContent::where('id', $id)->first();
-
+        $edit_cons = 'edit';
         //set user activity data
         $action_name = 'Edit Page Content ';
         $action_url = 'admin/edit-page-content';
@@ -177,7 +210,8 @@ class PageContentController extends Controller
 
         return view('admin::page_content.update', [
             'data' => $data,
-            'pageTitle' => $pageTitle
+            'pageTitle' => $pageTitle,
+            'edit_cons' => $edit_cons,
         ]);
     }
 
@@ -221,13 +255,13 @@ class PageContentController extends Controller
                         $image->move($this->image_path, $imagetitle);
                     }
                 }
-                UserLogFileHelper::log_info('update-page-content', 'Successfully updated.', ['Page Content Type ' . $input['type']]);
+                AdminLogFileHelper::log_info('update-page-content', 'Successfully updated.', ['Page Content Type ' . $input['type']]);
                 Session::flash('message', 'Successfully added!');
 
             } catch (\Exception $e) {
                 //If there are any exceptions, rollback the transaction`
                 DB::rollback();
-                UserLogFileHelper::log_error('update-page-content', $e->getMessage(), ['Page Content Type ' . $input['type']]);
+                AdminLogFileHelper::log_error('update-page-content', $e->getMessage(), ['Page Content Type ' . $input['type']]);
                 Session::flash('danger', $e->getMessage());
             }
         }
@@ -271,12 +305,12 @@ class PageContentController extends Controller
                 }
 
                 DB::commit();
-                UserLogFileHelper::log_info('delete-page-content', "Successfully Deleted.", ['Page Content Type ' . $model->type]);
+                AdminLogFileHelper::log_info('delete-page-content', "Successfully Deleted.", ['Page Content Type ' . $model->type]);
                 Session::flash('message', "Successfully Deleted.");
 
             } catch (\Exception $e) {
                 DB::rollback();
-                UserLogFileHelper::log_error('delete-page-content', $e->getMessage(), ['Page content type ' . $model->type]);
+                AdminLogFileHelper::log_error('delete-page-content', $e->getMessage(), ['Page content type ' . $model->type]);
                 Session::flash('danger', $e->getMessage());
 
             }
@@ -290,7 +324,12 @@ class PageContentController extends Controller
         $pageTitle = 'Page Content Information';
         $description = Input::get('short_description');
 
-        $data = PageContent::where('short_description', 'LIKE', '%' . $description . '%')->orWhere('long_description', 'LIKE', '%' . $description . '%')->paginate(30);
+        $data = PageContent::where('short_description', 'LIKE', '%' . $description . '%')
+            ->orWhere('long_description', 'LIKE', '%' . $description . '%')
+            ->orWhere('type', 'LIKE', '%' . $description . '%')
+            ->orWhere('route', 'LIKE', '%' . $description . '%')
+            ->orWhere('status', 'LIKE', '%' . $description . '%')
+            ->paginate(30);
 
         //set user activity data
         $action_name = 'search page content item';

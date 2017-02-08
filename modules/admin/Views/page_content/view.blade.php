@@ -16,10 +16,14 @@
                 <td>{{ isset($data->route)? $data->route:''}}</td>
             </tr>
 
-            <td colspan="2">@if(isset($data->image)) <img class="img-responsive" src="{{ $data->image }}"/> @endif
+            <td colspan="2">
+                @if(isset($data->image) && !empty($data->image))
+                    <img class="img-responsive" src="{{ $data->image }}"/>
+                @else
+                    <img class="img-responsive" src="/{{ $no_image }}">
+                @endif
             </td>
             </tr>
-
             <tr>
                 <th class="col-lg-4">Short Description</th>
                 <td>{{ isset($data->short_description)? $data->short_description:''}}</td>

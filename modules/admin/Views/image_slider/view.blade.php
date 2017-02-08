@@ -12,8 +12,15 @@
             </tr>
            <tr>
                 
-                <td colspan="2">@if(isset($data->image)) <img class="img-responsive" src="{{ $data->image }}"/> @endif</td>
-            </tr>        
+                <td colspan="2">
+                    @if(isset($data->image) && !empty($data->image))
+                        <img class="img-responsive" src="{{ $data->image }}"/>
+                    @else
+                        <img class="img-responsive" src="/{{ $no_image }}">
+                    @endif
+                </td>
+            </tr>
+
             <tr>
                 <th class="col-lg-4">Slug</th>
                 <td>{{ isset($data->slug)? $data->slug:''}}</td>

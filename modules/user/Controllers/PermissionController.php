@@ -192,6 +192,7 @@ class PermissionController extends Controller
     {
         $pageTitle = 'Update Permission Informations';
         $data = Permission::where('id',$id)->first();
+        $edit_cons= 'edit';
 
         //set data
         $action_name = 'view data from Permission';
@@ -201,7 +202,12 @@ class PermissionController extends Controller
         //store into user_activity table
         $user_act = ActivityLogs::set_users_activity($action_name, $action_url, $action_detail, $action_table);
 
-        return view('user::permission.update', ['data' => $data, 'pageTitle'=> $pageTitle]);
+        return view('user::permission.update', [
+            'data' => $data,
+            'pageTitle'=> $pageTitle,
+            'edit_cons' => $edit_cons,
+
+        ]);
     }
 
     /**
@@ -231,14 +237,14 @@ class PermissionController extends Controller
             try {
                 $model->update($input);
                 DB::commit();
-                LogFileHelper::log_info('update-permission', 'Successfully updated', ['Permission : '.$input['route_url']]);
+                UserLogFileHelper::log_info('update-permission', 'Successfully updated', ['Permission : '.$input['route_url']]);
                 Session::flash('message', "Successfully Updated");
 
             }
             catch ( Exception $e ){
                 //If there are any exceptions, rollback the transaction
                 DB::rollback();
-                LogFileHelper::log_error('update-permission', $e->getMessage(), ['Permission title: '.$input['route_url']]);
+                UserLogFileHelper::log_error('update-permission', $e->getMessage(), ['Permission title: '.$input['route_url']]);
                 Session::flash('danger', $e->getMessage());
 
             }
@@ -324,7 +330,7 @@ class PermissionController extends Controller
 
                 } catch(\Exception $e) {
                     DB::rollback();
-                    LogFileHelper::log_error('route-insert-in-permission', $e->getMessage(), ['Permission id: '.$model->route_url]);
+                    UserLogFileHelper::log_error('route-insert-in-permission', $e->getMessage(), ['Permission id: '.$model->route_url]);
                     Session::flash('danger',$e->getMessage());
 
                 }

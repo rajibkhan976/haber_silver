@@ -20,7 +20,7 @@
                     {!! Form::open(['method' =>'GET','route'=>'admin.trade.show.search']) !!}
                     <div id="index-search">
                         <div class="col-sm-3">
-                            {!! Form::text('title',@Input::get('title')? Input::get('title') : null,['class' => 'form-control','placeholder'=>'type title', 'name'=>'title', 'title'=>'example :: Abc, then click "search" button']) !!}
+                            {!! Form::text('title',@Input::get('title')? Input::get('title') : null,['class' => 'form-control','placeholder'=>'Search Keywords', 'name'=>'title', 'title'=>'example :: Abc, then click "search" button']) !!}
                         </div>
                         <div class="col-sm-2 filter-btn">
                             {!! Form::submit('Search', array('class'=>'btn btn-primary btn-xs pull-left','id'=>'button', 'data-placement'=>'right', 'data-content'=>'type title then click search button for required information')) !!}
@@ -29,7 +29,6 @@
                     {!! Form::close() !!}
                     <p> &nbsp;</p>
                     <p> &nbsp;</p>
-
                     {{-------------- Filter :Ends -------------------------------------------}}
                     <div class="table-primary">
                         <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" id="datatable1">
@@ -37,7 +36,7 @@
                             <tr>
                                 <th> Title  </th>
                                 <th> Slug  </th>
-                                <th> image View  </th>
+                                <th> Image View  </th>
                                 <th> Status </th>
                                 <th> Action &nbsp;&nbsp;<span style="color: #A54A7B " class="top-popover" rel="popover" data-title="" data-html="true" data-content="view : click for details informations<br>update : click for update informations<br>delete : click for cancel trade show"> (?) </span></th>
                             </tr>
@@ -46,14 +45,16 @@
                             @if(isset($data))
                                 @foreach($data as $values)
                                     <tr class="gradeX">
-                                        <td>{{ucfirst($values->title)}} </td>
+                                        <td>
+                                            <a href="{{ route('admin.view.trade.show', $values->id) }}" data-toggle="modal" data-target="#etsbModal" data-placement="top" data-content="view">{{ucfirst($values->title)}}</a>
+                                            </td>
                                         <td>{{$values->slug}}</td>
                                         <td> @if(isset($values->thumb) && !empty($values->thumb))
                                                 <img src="{{ $values->thumb .'?'.rand(100,500)}}">
                                             @else
                                                 <img style="height: 50px" src="/{{ $no_image .'?'.rand(100,500)}}">
                                             @endif </td>
-                                        <td>{{$values->status}}</td>
+                                        <td>{{ucfirst($values->status)}}</td>
                                         <td>
                                             <a href="{{ route('admin.view.trade.show', $values->id) }}" class="btn btn-info btn-xs" data-toggle="modal" data-target="#etsbModal" data-placement="top" data-content="view"><i class="fa fa-eye"></i></a>
                                             <a href="{{ route('admin.edit.trade.show', $values->id) }}" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#etsbModal" data-placement="top" data-content="update"><i class="fa fa-edit"></i></a>
@@ -77,7 +78,7 @@
 
     <div id="addData" class="modal fade" tabindex="" role="dialog" style="display: none;">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
+            <div class="modal-content add-form">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true" title="click x button for close this entry form">×</button>
                     <h4 class="modal-title" id="myModalLabel">Add Trade Show  Item<span style="color: #A54A7B" class="user-guideline" data-content="<em>Must Fill <b>Required</b> Field.    <b>*</b> Put cursor on input field for more informations</em>"><font size="2">(?)</font> </span></h4>
@@ -99,7 +100,7 @@
 
     <div class="modal fade" id="etsbModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
+            <div class="modal-content add-form">
 
             </div>
         </div>

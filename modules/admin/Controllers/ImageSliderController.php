@@ -2,6 +2,7 @@
 
 namespace Modules\Admin\Controllers;
 
+use App\Http\Helpers\DirectoryCheckPermission;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -10,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Input;
 use App\Http\Helpers\ActivityLogs;
-use App\Helpers\UserLogFileHelper;
+use App\Helpers\AdminLogFileHelper;
 use Modules\Admin\Models\ImageSlider;
 use Image;
 use File;
@@ -36,6 +37,7 @@ class ImageSliderController extends Controller
         $this->image_relative_path = '/uploads/image_slider/image';
         $this->thumb_relative_path = '/uploads/image_slider/thumb';
     }
+
 
     public function index()
     {
@@ -98,6 +100,8 @@ class ImageSliderController extends Controller
             try {
                 if (ImageSlider::create($input_data)) {
                     $thumb_img = Image::make($image->getRealPath())->resize(50, 50);
+                        DirectoryCheckPermission::is_dir_set_permission($this->image_path);
+                        DirectoryCheckPermission::is_dir_set_permission($this->thumb_path);
                     $thumb_img->save($this->thumb_path . '/' . $imagetitle, 100);
                     $image->move($this->image_path, $imagetitle);
                     //set user activity data
@@ -111,13 +115,13 @@ class ImageSliderController extends Controller
 
                 DB::commit();
 
-                UserLogFileHelper::log_info('store-image-slider', 'Successfully Added', ['Image Slider Title ' . $input_data['title']]);
+                AdminLogFileHelper::log_info('store-image-slider', 'Successfully Added', ['Image Slider Title ' . $input_data['title']]);
                 Session::flash('message', 'Successfully added!');
 
             } catch (\Exception $e) {
                 //If there are any exceptions, rollback the transaction`
                 DB::rollback();
-                UserLogFileHelper::log_error('store-image-slider', $e->getMessage(), ['Image Slider Title' . $input_data['title']]);
+                AdminLogFileHelper::log_error('store-image-slider', $e->getMessage(), ['Image Slider Title' . $input_data['title']]);
                 Session::flash('danger', $e->getMessage());
 
             }
@@ -169,6 +173,7 @@ class ImageSliderController extends Controller
     {
         $pageTitle = "Update Image Slider Informations";
         $data = ImageSlider::where('id', $id)->first();
+        $edit_cons = 'edit';
 
         //set user activity data
         $action_name = 'Edit Image Slider';
@@ -180,7 +185,8 @@ class ImageSliderController extends Controller
 
         return view('admin::image_slider.update', [
             'data' => $data,
-            'pageTitle' => $pageTitle
+            'pageTitle' => $pageTitle,
+            'edit_cons' => $edit_cons,
         ]);
     }
 
@@ -225,13 +231,13 @@ class ImageSliderController extends Controller
                         $image->move($this->image_path, $imagetitle);
                     }
                 }
-                UserLogFileHelper::log_info('update-image-slider', 'Successfully updated.', ['Slider Image Title ' . $input['title']]);
+                AdminLogFileHelper::log_info('update-image-slider', 'Successfully updated.', ['Slider Image Title ' . $input['title']]);
                 Session::flash('message', 'Successfully added!');
 
             } catch (\Exception $e) {
                 //If there are any exceptions, rollback the transaction`
                 DB::rollback();
-                UserLogFileHelper::log_error('update-image-slider', $e->getMessage(), ['Image Slider Title ' . $input['title']]);
+                AdminLogFileHelper::log_error('update-image-slider', $e->getMessage(), ['Image Slider Title ' . $input['title']]);
                 Session::flash('danger', $e->getMessage());
             }
         }
@@ -245,6 +251,11 @@ class ImageSliderController extends Controller
         $user_act = ActivityLogs::set_users_activity($action_name, $action_url, $action_detail, $action_table);
         return redirect()->back();
     }
+
+
+
+
+
 
     /**
      * Remove the specified resource from storage.
@@ -275,12 +286,12 @@ class ImageSliderController extends Controller
                 }
 
                 DB::commit();
-                UserLogFileHelper::log_info('delete-image-slider', "Successfully Deleted.", ['Slider Image Title ' . $model->title]);
+                AdminLogFileHelper::log_info('delete-image-slider', "Successfully Deleted.", ['Slider Image Title ' . $model->title]);
                 Session::flash('message', "Successfully Deleted.");
 
             } catch (\Exception $e) {
                 DB::rollback();
-                UserLogFileHelper::log_error('delete-image-slider', $e->getMessage(), ['Slider Image Title ' . $model->title]);
+                AdminLogFileHelper::log_error('delete-image-slider', $e->getMessage(), ['Slider Image Title ' . $model->title]);
                 Session::flash('danger', $e->getMessage());
 
             }
@@ -293,7 +304,13 @@ class ImageSliderController extends Controller
     {
         $pageTitle = 'Image Slider Information';
         $title = Input::get('title');
-        $data = ImageSlider::where('title', 'LIKE', '%' . $title . '%')->orWhere('caption', 'LIKE', '%' . $title . '%')->orWhere('short_description', 'LIKE', '%' . $title . '%')->paginate(30);
+        $data = ImageSlider::where('title', 'LIKE', '%' . $title . '%')
+            ->orWhere('caption', 'LIKE', '%' . $title . '%')
+            ->orWhere('route', 'LIKE', '%' . $title . '%')
+            ->orWhere('order', 'LIKE', '%' . $title . '%')
+            ->orWhere('short_description', 'LIKE', '%' . $title . '%')
+            ->orWhere('status', 'LIKE', '%' . $title . '%')
+            ->paginate(30);
 
         //set user activity data
         $action_name = 'search image slider';

@@ -188,5 +188,13 @@ Route::Group(['prefix'=>'admin', 'namespace'=>'Modules\Admin\Controllers', 'midd
     include('iqbal_route.php');
     include('mizan_route.php');
     include('rajib_route.php');
+
+
+
+    include('elastic_search_route.php');
+
+
+
+
 });
 

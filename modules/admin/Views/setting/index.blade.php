@@ -46,6 +46,7 @@
                                 <th> Last number </th>
                                 <th> Increment </th>
                                 <th> Status </th>
+                                <th> Code </th>
                                 <th> Action &nbsp;&nbsp;
                                  <span style="color: #A54A7B " class="top-popover" rel="popover" data-title="" data-html="true" data-content="view : click for details informations<br>update : click for update informations<br>"> (?) </span></th>
                             </tr>
@@ -58,10 +59,9 @@
                                         <td>{{ucfirst($values->last_number)}}</td>
                                         <td>{{ucfirst($values->increment)}}</td>
                                         <td>{{ucfirst($values->status)}}</td>
+                                        <td>{{ucfirst(@$values->code)}}</td>
                                         <td>
-                                            <a href="{{ route('admin.show.setting', $values->id) }}" class="btn btn-info btn-xs" data-placement="top" data-toggle="modal" data-target="#etsbModal" data-content="view"><i class="fa fa-eye"></i></a>
                                             <a href="{{ route('admin.edit.setting', $values->id) }}" class="btn btn-primary btn-xs" data-placement="top" data-toggle="modal" data-target="#etsbModal" data-content="update"><i class="fa fa-edit"></i></a>
-                                            <a href="{{ route('admin.delete.setting', $values->id) }}" class="btn btn-danger btn-xs" onclick="return confirm('Are you sure to Delete?')" data-placement="top" data-content="delete"><i class="fa fa-trash-o"></i></a>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -80,14 +80,14 @@
 
     <div id="addData" class="modal fade" tabindex="" role="dialog" style="display: none;">
         <div class="modal-dialog">
-            <div class="modal-content">
+            <div class="modal-content add-form">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true" title="click x button for close this entry form">×</button>
                     <h4 class="modal-title" id="myModalLabel">Add Settings Informatons<span style="color: #A54A7B" class="user-guideline" data-content="<em>Must Fill <b>Required</b> Field.    <b>*</b> Put cursor on input field for more informations</em>"><font size="2">(?)</font> </span></h4>
                 </div>
                 <div class="modal-body">
                 {!! Form::open(['route' => 'admin.store.setting', 'files'=> true, 'id' => 'user-jq-validation-form', "class"=>"form form-validate floating-label",  "novalidate"=>"novalidate" ]) !!}
-                   
+
                      @include('admin::setting._form')
                 {!! Form::close() !!}
                 </div> <!-- / .modal-body -->
@@ -101,7 +101,7 @@
 
     <div class="modal fade" id="etsbModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content">
+            <div class="modal-content add-form">
 
 
             </div>

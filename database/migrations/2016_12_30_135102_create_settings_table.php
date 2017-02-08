@@ -16,7 +16,7 @@ class CreateSettingsTable extends Migration
         Schema::create('settings', function (Blueprint $table)
         {
             $table->increments('id'); 
-            $table->enum('type',array('product-code','quote-number'))->nullable();
+            $table->string('type');
             $table->integer('last_number');
             $table->integer('increment');
             $table->enum('status',array('active','inactive','cancel'))->nullable();

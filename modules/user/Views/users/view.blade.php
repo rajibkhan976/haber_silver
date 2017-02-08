@@ -30,7 +30,7 @@
             </tr>
             <tr>
                 <th class="col-lg-4">Role</th>
-                <td>{{ isset($data->role_id)?$data->role_id:'' }}</td>
+                <td>{{ ucfirst(@$data->relRole->title) }}</td>
             </tr>
             <tr>
                 <th class="col-lg-4">Last Visited</th>

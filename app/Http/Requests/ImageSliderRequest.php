@@ -28,9 +28,9 @@ class ImageSliderRequest extends FormRequest
 
         if (empty($id)) {
             return [
-                'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:5000' . $id,
-                'title' => 'required|unique:image_slider,title' . $id,
-                'short_description' => 'required' . $id,
+                'image' => 'image|mimes:jpeg,png,jpg,gif|max:5000',
+                'title' => 'required:image_slider,title' . $id,
+                'short_description' => 'required' ,
             ];
         } else {
             return [

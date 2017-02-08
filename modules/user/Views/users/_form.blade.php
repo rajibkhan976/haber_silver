@@ -4,15 +4,15 @@
     <div class="col-lg-offset-0 col-md-12">
 
             <div class="row">
-                <div class="col-lg-offset-0 col-md-6">
-
+                <div class="col-lg-offset-0 col-md-6 frm-left-field">
                     <div class="form-group">
                         {!! Form::text('first_name', null, ['id'=>'first_name', 'class' => 'form-control', 'required'=> 'required', 'data-rule-minlength'=>"2"]) !!}
                         {!! Form::label('first_name','First Name: *') !!}
                     </div>
+
                     <span class="text-danger">{!! $errors->first('first_name') !!}</span>
                 </div>
-                <div class="col-lg-offset-0 col-md-6">
+                <div class="col-lg-offset-0 col-md-6 frm-right-field">
                     <div class="form-group">
                         {!! Form::text('last_name', null, ['id'=>'last_name', 'class' => 'form-control', 'required' => 'required', 'data-rule-minlength'=>"2"]) !!}
                         {!! Form::label('last_name','Last Name: *') !!}
@@ -23,7 +23,7 @@
             </div>
 
             <div class="row">
-                <div class="col-lg-offset-0 col-md-6">
+                <div class="col-lg-offset-0 col-md-6 frm-left-field">
                     <div class="form-group">
                         {!! Form::email('username', null, [ 'id'=>'username', 'class' => 'form-control', 'required' => 'required'  ]) !!}
                         {!! Form::label('username','Username : *') !!}
@@ -31,7 +31,7 @@
                     <span class="text-danger">{!! $errors->first('username') !!}</span>
 
                 </div>
-                <div class="col-lg-offset-0 col-md-6">
+                <div class="col-lg-offset-0 col-md-6 frm-right-field">
 
                     <div class="form-group">
                         {!! Form::email('email', null, ['id'=>'email', 'class' => 'form-control', 'required' => 'required']) !!}
@@ -53,14 +53,14 @@
             <div class="row" >
                 <div id="password-changing-option" style=" {{ isset($data->id)? 'display: block': null }} ">
 
-                    <div class="col-lg-offset-0 col-md-6">
+                    <div class="col-lg-offset-0 col-md-6 frm-left-field">
                         <div class="form-group">
                             {!! Form::password('password', ['id'=>'password', 'class' => 'form-control', 'required' => 'required', 'data-rule-minlength'=>"4"]) !!}
                             {!! Form::label('password','Password : *') !!}
                         </div>
                         <span class="text-danger">{!! $errors->first('password') !!}</span>
                     </div>
-                    <div class="col-lg-offset-0 col-md-6">
+                    <div class="col-lg-offset-0 col-md-6 frm-right-field">
                         <div class="form-group">
                             {!! Form::password('confirm_password', ['id'=>'confirm_password', 'class' => 'form-control', 'required' => 'required', 'data-rule-minlength'=>"4", 'onkeyup'=>"validation()"]) !!}
                             {!! Form::label('confirm_password','Confirm Password : *') !!}
@@ -80,7 +80,7 @@
 
 
             <div class="row">
-                <div class="col-lg-offset-0 col-md-6">
+                <div class="col-lg-offset-0 col-md-6 frm-left-field">
                     <div class="form-group">
                         <select id="roles_id" name="roles_id" class="form-control" required>
                             @if(isset($roles ))
@@ -95,7 +95,7 @@
                     </div>
                     <span class="text-danger">{!! $errors->first('roles_id') !!}</span>
                 </div>
-                <div class="col-lg-offset-0 col-md-6">
+                <div class="col-lg-offset-0 col-md-6 frm-right-field">
                     <div class="form-group">
                         {!! Form::label('status', 'Status:') !!}
                         {!! Form::Select('status',array('active'=>'Active','inactive'=>'Inactive','cancel'=>'Cancel'),Input::old('status'),['id'=>'status', 'class'=>'form-control ','required']) !!}
@@ -103,12 +103,9 @@
                     <span class="text-danger">{!! $errors->first('status') !!}</span>
                 </div>
             </div>
-
-
-
-
+        <p>&nbsp;</p>
             <div class="form-margin-btn pull-right">
-                {!! Form::submit('Save Changes', ['id'=>'btn-disabled','class' => 'btn btn-primary ','data-placement'=>'top','data-content'=>'click save changes button for save role information']) !!}
+                {!! Form::submit(isset($edit_cons)?'Update':'Save', ['id'=>'btn-disabled','class' => 'btn btn-primary ','data-placement'=>'top','data-content'=>'click save changes button for save role information']) !!}
                 <a href="{{route('user.lists')}}" class=" btn btn-default " data-placement="top" data-content="click close button for close this entry form">Close</a>
             </div>
 

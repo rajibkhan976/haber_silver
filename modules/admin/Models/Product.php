@@ -49,4 +49,14 @@ class Product extends Model
         });
     }
 
+    public function productCategory()
+    {
+        return $this->belongsTo('Modules\Admin\Models\ProductCategory');
+    }
+
+    public function productSubCategory()
+    {
+        return $this->belongsTo('Modules\Admin\Models\ProductSubCategory');
+    }
+
 }

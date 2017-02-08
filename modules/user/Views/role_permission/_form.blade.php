@@ -28,7 +28,7 @@
         <p> &nbsp;&nbsp; </p>
 
         <div class="save-margin-btn pull-right">
-            {!! Form::submit('Save changes', ['class' => 'btn btn-primary','data-placement'=>'top','data-content'=>'click save changes button for save permission role information']) !!}
+            {!! Form::submit(isset($edit_cons)?'Update':'Save', ['class' => 'btn btn-primary','data-placement'=>'top','data-content'=>'click save changes button for save permission role information']) !!}
             <a href="{{route('user.index.permission.role')}}" class=" btn btn-default" data-placement="top" data-content="click close button for close this entry form">Close</a>
         </div>
 

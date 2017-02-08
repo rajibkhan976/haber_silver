@@ -24,7 +24,7 @@
                     {!! Form::open(['method' =>'GET','route'=>'admin.page.content.search']) !!}
                     <div id="index-search">
                         <div class="col-sm-3">
-                            {!! Form::text('short_description',@Input::get('short_description')? Input::get('short_description') : null,['class' => 'form-control','placeholder'=>'type short/long description', 'name'=>'short_description', 'title'=>'example :: Abc, then click "search" button']) !!}
+                            {!! Form::text('short_description',@Input::get('short_description')? Input::get('short_description') : null,['class' => 'form-control','placeholder'=>'Search Keywords', 'name'=>'short_description', 'title'=>'example :: Abc, then click "search" button']) !!}
                         </div>
                         <div class="col-sm-2 filter-btn">
                             {!! Form::submit('Search', array('class'=>'btn btn-primary btn-xs pull-left','id'=>'button', 'data-placement'=>'right', 'data-content'=>'type title then click search button for required information')) !!}
@@ -42,7 +42,7 @@
                             <tr>
                                 <th> Type</th>
                                 <th> Image View</th>
-                                <th> short Description</th>
+                                <th> Short Description</th>
                                 <th> Status</th>
                                 <th> Action &nbsp;&nbsp;<span style="color: #A54A7B " class="top-popover" rel="popover"
                                                               data-title="" data-html="true"
@@ -54,14 +54,16 @@
                             @if(isset($data))
                                 @foreach($data as $values)
                                     <tr class="gradeX">
-                                        <td>{{ucfirst($values->type)}} </td>
-                                        <td>@if(isset($values->thumb) && !empty($values->thumb)))
-                                            <img src="{{ $values->thumb .'?'.rand(100,500)}}">
+                                        <td><a href="{{ route('admin.view.page.content', $values->id) }}"
+                                               data-toggle="modal" data-target="#etsbModal" data-placement="top"
+                                               data-content="view">{{ucfirst($values->type)}}</a></td>
+                                        <td>@if(isset($values->thumb) && !empty($values->thumb))
+                                                <img src="{{ $values->thumb .'?'.rand(100,500)}}">
                                             @else
                                                 <img style="height: 50px" src="/{{ $no_image .'?'.rand(100,500)}}">
                                             @endif </td>
                                         <td>{{ucfirst($values->short_description)}} </td>
-                                        <td>{{$values->status}}</td>
+                                        <td>{{ucfirst($values->status)}}</td>
                                         <td>
                                             <a href="{{ route('admin.view.page.content', $values->id) }}"
                                                class="btn btn-info btn-xs" data-toggle="modal" data-target="#etsbModal"
@@ -90,11 +92,12 @@
             </div>
         </div>
     </div>
+
     <!-- page end-->
 
     <div id="addData" class="modal fade" tabindex="" role="dialog" style="display: none;">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
+            <div class="modal-content add-form">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
                             title="click x button for close this entry form">×
@@ -122,7 +125,7 @@
     <div class="modal fade" id="etsbModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"
          data-backdrop="static">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
+            <div class="modal-content add-form">
 
             </div>
         </div>

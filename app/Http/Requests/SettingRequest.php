@@ -30,17 +30,20 @@ class SettingRequest extends FormRequest
      */
     public function rules()
     {
-        $type = Request::input('type')?Request::input('type'):'';
+        $id = Request::input('id')?Request::input('id'):'';
         $last_number = Request::input('last_number')?Request::input('last_number'):'';
-        $increment = Request::input('increment')?Request::input('increment'):'';
-        
+//        $increment = Request::input('increment')?Request::input('increment'):'';
+       // $code = Request::input('code')?Request::input('code'):'';
 
-        if($type == null)
+
+        if($last_number)
         {
             return [
-                'type'   => 'required|unique:settings,type,' . $type,
-                'last_number'    => 'required:settings,last_number,' . $last_number,
-                'increment'   => 'required:settings,increment,' . $increment,
+               'type'   => 'required|unique:settings,type,' . $id,
+                'type'   => 'required' . $id,
+                'last_number'    => 'required:settings,last_number,' . $id,
+                'increment'   => 'required:settings,increment,' . $id,
+                'code'   =>  'required|min:4|max:4'. $id,
             ];
         }else{
             return [
@@ -48,7 +51,25 @@ class SettingRequest extends FormRequest
             ];
         }
 
+//
+
+
+
+
 
     }
+
+
+    /*public function rules()
+    {
+
+        return [
+           'type'   => 'required',
+            'last_number'    => 'required',
+            'increment'   => 'required',
+            'code'   =>  'required|min:4|max:4',
+        ];
+
+    }*/
 
 }

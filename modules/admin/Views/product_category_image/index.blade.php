@@ -45,7 +45,7 @@
                                 @foreach($data as $values)
                                     <tr class="gradeX">
                                         <td> <img src="{{@$values->thumb}}" alt="">  </td>
-                                        <td> {{@$values->title}}"   </td>
+                                        <td> {{@$values->title}}   </td>
                                         <td> {{@$values->alt}}  </td>
                                         <td> {{@$values->status}}  </td>
 
@@ -74,7 +74,7 @@
 
     <div id="addData" class="modal fade" tabindex="" role="dialog" style="display: none;">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
+            <div class="modal-content add-form">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true" title="click x button for close this entry form">×</button>
                     <h4 class="modal-title" id="myModalLabel">Add Product Category Image <span style="color: #A54A7B" class="user-guideline" data-content="<em>Must Fill <b>Required</b> Field.    <b>*</b> Put cursor on input field for more informations</em>">(?) </span></h4>
@@ -96,7 +96,7 @@
 
     <div class="modal fade" id="etsbModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
+            <div class="modal-content add-form">
 
             </div>
         </div>

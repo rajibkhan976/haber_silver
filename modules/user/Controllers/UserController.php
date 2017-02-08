@@ -98,13 +98,13 @@ class UserController extends Controller
 
         $data = DB::table('users')
             ->join('roles', 'users.roles_id', '=', 'roles.id')
-            ->where('roles.slug','LIKE','user')
+            ->where('roles.slug','LIKE','site-user')
             ->where('roles.status','!=','cancel')
             ->select('users.*', 'roles.title as roles_title')
             ->orderBy('users.id', 'DESC')
             ->paginate(30);
 
-        $roles =  Role::where('title', '!=', 'super-admin')->get(['id', 'title'])->toArray();
+        $roles =  Role::where('title', '=', 'site-user')->get(['id', 'title'])->toArray();
 
 
         //set data
@@ -129,23 +129,56 @@ class UserController extends Controller
      */
     public function index_cms_user()
     {
-        $pageTitle = "User List";
+        $pageTitle = "CMS-User List";
 
         $data = DB::table('users')
             ->join('roles', 'users.roles_id', '=', 'roles.id')
-            ->where('roles.slug','LIKE','admin')
+            ->where('roles.slug','LIKE','cms-user')
             ->where('roles.status','!=','cancel')
             ->select('users.*', 'roles.title as roles_title')
             ->orderBy('users.id', 'DESC')
             ->paginate(30);
 
-        $roles =  Role::where('title', '!=', 'super-admin')->get(['id', 'title'])->toArray();
-
-
+        $roles =  Role::where('title', '=', 'cms-user')->get(['id', 'title'])->toArray();
         //set data
         $action_name = 'CMS User Lists Index ';
         $action_url = 'user/cms-user-list';
         $action_detail = @\Auth::user()->username.' '. 'CMS User Lists Index :: ';
+        $action_table = 'users';
+        //store into user_activity table
+        $user_act = ActivityLogs::set_users_activity($action_name, $action_url, $action_detail, $action_table);
+
+
+        return view('user::users.index', [
+            'data' => $data,
+            'pageTitle'=> $pageTitle,
+            'roles'=>$roles
+        ]);
+    }
+
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index_distributor()
+    {
+        $pageTitle = "Distributor List";
+
+        $data = DB::table('users')
+            ->join('roles', 'users.roles_id', '=', 'roles.id')
+            ->where('roles.slug','LIKE','distributor')
+            ->where('roles.status','!=','cancel')
+            ->select('users.*', 'roles.title as roles_title')
+            ->orderBy('users.id', 'DESC')
+            ->paginate(30);
+
+        $roles =  Role::where('title', '=', 'distributor')->get(['id', 'title'])->toArray();
+        //set data
+        $action_name = 'Distributor Lists Index ';
+        $action_url = 'user/distributor-list';
+        $action_detail = @\Auth::user()->username.' '. 'Distributor Lists Index :: ';
         $action_table = 'users';
         //store into user_activity table
         $user_act = ActivityLogs::set_users_activity($action_name, $action_url, $action_detail, $action_table);
@@ -415,8 +448,6 @@ class UserController extends Controller
     {
         $pageTitle = 'User Information';
         $data = User::with('relRole')->where('id',$id)->first();
-
-
         //set data
         $action_name = 'show user ';
         $action_url = 'user/profile';
@@ -446,7 +477,7 @@ class UserController extends Controller
         $user_role = Role::where('id', $data->role_id)->first();
 
         $roles =  Role::where('title', '!=', 'super-admin')->get(['id', 'title'])->toArray();
-
+        $edit_cons = 'edit';
 
         //set data
         $action_name = 'Edit user ';
@@ -460,7 +491,8 @@ class UserController extends Controller
             'pageTitle'=>$pageTitle,
             'data' => $data,
             'user_role'=>$user_role,
-            'roles'=>$roles
+            'roles'=>$roles,
+            'edit_cons' => $edit_cons,
         ]);
 
     }

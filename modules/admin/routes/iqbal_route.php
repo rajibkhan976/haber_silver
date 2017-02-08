@@ -50,7 +50,7 @@ Route::get('delete-product-sub-category/{id}', [
 ]);
 Route::get('product-sub-category-search', [
     'as' => 'admin.product.sub.category.search',
-    'uses' => 'ProductSubCategoryController@search_product_category'
+    'uses' => 'ProductSubCategoryController@search_product_sub_category'
 ]);
 /*------------------------------------*/
 
@@ -58,7 +58,7 @@ Route::get('product-sub-category-search', [
 /*  product_sub_category_image */
 Route::any('store-product-sub-category-image', [
     'as' => 'admin.store.product.sub.category.image',
-    'uses' => 'ProductSubCategoryImageController@store_product_category_image'
+    'uses' => 'ProductSubCategoryImageController@store_product_sub_category_image'
 ]);
 
 Route::any('edit-product-sub-category-image/{id}', [
@@ -73,5 +73,44 @@ Route::any('update-product-sub-category-image/{id}', [
 Route::get('delete-product-sub-category-image/{id}', [
     'as' => 'admin.delete.product.sub.category.image',
     'uses' => 'ProductSubCategoryImageController@destroy'
+]);
+/*------------------------------------*/
+
+
+
+/* menu_panel*/
+Route::any('menu-panel', [
+    'as' => 'admin.menu.panel',
+    'uses' => 'MenuPanelController@index'
+]);
+Route::any('view-menu-panel/{id}', [
+    'as' => 'admin.view.menu.panel',
+    'uses' => 'MenuPanelController@show'
+]);
+Route::get('menu-panel-search', [
+    'as' => 'admin.menu.panel.search',
+    'uses' => 'MenuPanelController@search'
+]);
+
+
+Route::any('store-menu-panel', [
+    'as' => 'admin.store.menu.panel',
+    'uses' => 'MenuPanelController@store_menu_panel'
+]);
+
+Route::any('edit-menu-panel/{id}', [
+    'as' => 'admin.edit.menu.panel',
+    'uses' => 'MenuPanelController@edit'
+]);
+Route::any('update-menu-panel/{id}', [
+    'as' => 'admin.update.menu.panel',
+    'uses' => 'MenuPanelController@update'
+]);
+
+
+
+Route::get('delete-menu-panel/{id}', [
+    'as' => 'admin.delete.menu.panel',
+    'uses' => 'MenuPanelController@destroy'
 ]);
 /*------------------------------------*/

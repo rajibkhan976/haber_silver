@@ -25,8 +25,9 @@
 
 <div class="row">
     <div class="col-lg-offset-0 col-md-12">
+        <p>&nbsp;</p>
         <div class="form-margin-btn pull-right">
-                {!! Form::submit('Save changes', ['class' => 'btn btn-primary','data-placement'=>'top','data-content'=>'click save changes button for save branch information']) !!}
+                {!! Form::submit(isset($edit_cons)?'Update':'Save', ['class' => 'btn btn-primary','data-placement'=>'top','data-content'=>'click save changes button for save branch information']) !!}
                 <a href="{{route('user.index.permission')}}" class=" btn btn-default" data-placement="top" data-content="click close button for close this entry form">Close</a>
         </div>
     </div>

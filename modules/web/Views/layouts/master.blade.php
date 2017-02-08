@@ -20,6 +20,7 @@
 
     <!-- Custom styles for this template -->
     <link rel="stylesheet" href="{{ elixir('assets/css/web-theme/style.css') }}" />
+    {{--<link rel="stylesheet" href="{{ elixir('assets/css/web-theme/web.css') }}" />--}}
 
     <!-- modernizr -->
     <script src="{{ elixir('assets/js/web-theme/modernizr.js') }}"></script>
@@ -43,14 +44,12 @@
 <!-- Page Content -->
 <div class="container">
 
-
     @yield('content')
-
-    <!-- Footer -->
-    @include('web::layouts.footer')
 
 </div>
 <!-- /.container -->
+<!-- Footer -->
+@include('web::layouts.footer')
 <!-- jQuery -->
 <script src="{{ elixir('assets/js/web-theme/jquery-3.1.1.min.js') }}"></script>
 <!-- Bootstrap Core JavaScript -->

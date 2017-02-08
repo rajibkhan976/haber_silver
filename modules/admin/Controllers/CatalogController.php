@@ -8,10 +8,11 @@
 
 namespace Modules\Admin\Controllers;
 
+use App\Helpers\AdminLogFileHelper;
 use App\Http\Helpers\ActivityLogs;
+use App\Http\Helpers\DirectoryCheckPermission;
 use Modules\Admin\Models\Catalog;
 use Illuminate\Http\Request;
-
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +25,25 @@ use File;
 class CatalogController extends Controller
 {
 
+
+    protected $catalog_file_path;
+    protected $catalog_image_path;
+    protected $catalog_thumb_path;
+    protected $catalog_file_relative_path;
+    protected $catalog_image_relative_path;
+    protected $catalog_thumb_relative_path;
+
+    public function __construct()
+    {
+        $this->catalog_file_path = public_path('uploads/catalog/file');
+        $this->catalog_image_path = public_path('uploads/catalog/image');
+        $this->catalog_thumb_path = public_path('uploads/catalog/thumb');
+        $this->catalog_file_relative_path = '/uploads/catalog/file';
+        $this->catalog_image_relative_path = '/uploads/catalog/image';
+        $this->catalog_thumb_relative_path = '/uploads/catalog/thumb';
+    }
+
+
     //Get and Post method
     protected function isGetRequest()
     {
@@ -34,22 +54,9 @@ class CatalogController extends Controller
         return Input::server("REQUEST_METHOD") == "POST";
     }
 
-    protected $catalog_file_path;
-    protected $catalog_image_path;
-    protected $catalog_thumb_path;
-    protected $catalog_file_relative_path;
-    protected $catalog_image_relative_path;
-    protected $catalog_thumb_relative_path;
+
     
-    public function __construct()
-    {
-        $this->catalog_file_path = public_path('uploads/catalog/file');
-        $this->catalog_image_path = public_path('uploads/catalog/image');
-        $this->catalog_thumb_path = public_path('uploads/catalog/thumb');
-        $this->catalog_file_relative_path = '/uploads/catalog/file';
-        $this->catalog_image_relative_path = '/uploads/catalog/image';
-        $this->catalog_thumb_relative_path = '/uploads/catalog/thumb';
-    }
+
 
     /**
      * Display a listing of the resource.
@@ -131,21 +138,41 @@ class CatalogController extends Controller
 
         $catalog_title = strtolower($input['title']);
         $input['slug'] = str_slug(strtolower($input['title']));
-        $data = Catalog::where('slug',$input['slug'])->exists();
+        $data = Catalog::where('title',$input['title'])->exists();
 
         if( !$data )
-        {        
-            $catalog_file = $request->file('file');
-            $catalog_file_title = str_replace(' ', '-', $catalog_title . '.' . $catalog_file->getClientOriginalExtension());
+        {
+
             $catalog_image = $request->file('image');
-            $catalog_image_title = str_replace(' ', '-', $catalog_title . '.' . $catalog_image->getClientOriginalExtension());
-            
+            $catalog_file = $request->file('file');
+
+            if ($catalog_image != null AND $catalog_file != null ) {
+                $catalog_image_title = str_replace(' ', '-', $catalog_title . '.' . $catalog_image->getClientOriginalExtension());
+                $catalog_file_title = str_replace(' ', '-', $catalog_title . '.' . $catalog_file->getClientOriginalExtension());
+                $file   = $this->catalog_file_relative_path.'/'.$catalog_file_title;
+                $image   = $this->catalog_image_relative_path.'/'.$catalog_image_title;
+                $thumb   = $this->catalog_thumb_relative_path.'/'.$catalog_image_title;
+            }elseif ($catalog_image != null AND $catalog_file == null){
+                $catalog_image_title = str_replace(' ', '-', $catalog_title . '.' . $catalog_image->getClientOriginalExtension());
+                $file    = '';
+                $image   = $this->catalog_image_relative_path.'/'.$catalog_image_title;
+                $thumb   = $this->catalog_thumb_relative_path.'/'.$catalog_image_title;
+            }elseif ($catalog_image == null AND $catalog_file != null){
+                $catalog_file_title = str_replace(' ', '-', $catalog_title . '.' . $catalog_file->getClientOriginalExtension());
+                $file   = $this->catalog_file_relative_path.'/'.$catalog_file_title;
+                $image  = '';
+                $thumb  = '';
+            }else{
+                $file   = '';
+                $image  = '';
+                $thumb  = '';
+            }
             $input_data = [
                     'title'=> $input['title'],
                     'slug'=> strtolower($input['slug']),
-                    'file'=> $this->catalog_file_relative_path.'/'.$catalog_file_title,
-                    'image'=> $this->catalog_image_relative_path.'/'.$catalog_image_title,
-                    'thumb'=> $this->catalog_thumb_relative_path.'/'.$catalog_image_title,
+                    'file'=>  $file,
+                    'image'=> $image,
+                    'thumb'=> $thumb,
                     'status'=> $input['status'],
                     'updated_by'=> 0,
                 ];
@@ -155,10 +182,18 @@ class CatalogController extends Controller
             try {
                 if(Catalog::create($input_data))
                 {
-                    $catalog_file->move($this->catalog_file_path, $catalog_file_title);
-                    $catalog_thumb_img = Image::make($catalog_image->getRealPath())->resize(50, 50);
-                    $catalog_thumb_img->save($this->catalog_thumb_path . '/' . $catalog_image_title, 100);
-                    $catalog_image->move($this->catalog_image_path, $catalog_image_title);
+                    if($catalog_file != null){
+                        DirectoryCheckPermission::is_dir_set_permission($this->catalog_file_path);
+                        $catalog_file->move($this->catalog_file_path, $catalog_file_title);
+                    }
+                    if($catalog_image != null){
+                        DirectoryCheckPermission::is_dir_set_permission($this->catalog_image_path);
+                        DirectoryCheckPermission::is_dir_set_permission($this->catalog_thumb_path);
+                        $catalog_thumb_img = Image::make($catalog_image->getRealPath())->resize(50, 50);
+                        $catalog_thumb_img->save($this->catalog_thumb_path . '/' . $catalog_image_title, 100);
+                        $catalog_image->move($this->catalog_image_path, $catalog_image_title);
+                    }
+
                     //set user activity data
                     $action_name = 'create a catalog';
                     $action_url = 'admin/store-catalog';
@@ -169,13 +204,13 @@ class CatalogController extends Controller
                 }
 
                 DB::commit();
-                UserLogFileHelper::log_info('store-catalog', 'Successfully Added', ['Catalog Title '.$input_data['title']]);
+                AdminLogFileHelper::log_info('store-catalog', 'Successfully Added', ['Catalog Title '.$input_data['title']]);
                 Session::flash('message', 'Successfully added!');
                 
             } catch (\Exception $e) {
                 //If there are any exceptions, rollback the transaction`
                 DB::rollback();
-                UserLogFileHelper::log_error('store-catalog', $e->getMessage(), ['Catalog Title '.$input_data['title']]);
+                AdminLogFileHelper::log_error('store-catalog', $e->getMessage(), ['Catalog Title '.$input_data['title']]);
                 Session::flash('danger', $e->getMessage());
           
             }
@@ -220,8 +255,9 @@ class CatalogController extends Controller
      */
     public function edit($id)
     {
-        $pageTitle = "Update Catalog Informations";              
+        $pageTitle = "Update Catalog Information";
         $data = Catalog::where('id', $id)->first();
+        $edit_cons = 'edit';
 
 
         //set user activity data
@@ -234,7 +270,8 @@ class CatalogController extends Controller
 
         return view('admin::catalog.update', [
             'data' => $data,
-            'pageTitle'=> $pageTitle
+            'pageTitle'=> $pageTitle,
+            'edit_cons' => $edit_cons,
         ]);
                    
     }
@@ -250,7 +287,6 @@ class CatalogController extends Controller
     public function update(Requests\CatalogRequest $request, $id)
     {
         $input = $request->all();
-
          $catalog_title = strtolower($input['title']);
          $input['slug'] = str_slug(strtolower($input['title']));
          $catalog_model = Catalog::where('id', $id)->first();
@@ -260,6 +296,7 @@ class CatalogController extends Controller
          
          if(isset($catalog_model) && count($catalog_model) == 1){
              if($catalog_file != null && $catalog_image != null){
+
                  $catalog_file_title = str_replace(' ', '-', $catalog_title . '.' . $catalog_file->getClientOriginalExtension());
                  $catalog_image_title = str_replace(' ', '-', $catalog_title . '.' . $catalog_image->getClientOriginalExtension());
                  
@@ -270,9 +307,29 @@ class CatalogController extends Controller
                  $input['file'] = $catalog_file_name;
                  $input['image'] = $catalog_image_name;
                  $input['thumb'] = $catalog_thumb_name;
-             } else {
+             }elseif($catalog_file == null && $catalog_image != null){
+
+                 $catalog_image_title = str_replace(' ', '-', $catalog_title . '.' . $catalog_image->getClientOriginalExtension());
+                 $catalog_image_name = $this->catalog_image_relative_path.'/'.$catalog_image_title;
+                 $catalog_thumb_name = $this->catalog_thumb_relative_path.'/'.$catalog_image_title;
+
+                 unset($input['file']);
+                 $input['image'] = $catalog_image_name;
+                 $input['thumb'] = $catalog_thumb_name;
+
+             }elseif($catalog_file != null && $catalog_image == null){
+                 $catalog_file_title = str_replace(' ', '-', $catalog_title . '.' . $catalog_file->getClientOriginalExtension());
+
+
+                 $catalog_file_name = $this->catalog_file_relative_path.'/'.$catalog_file_title;
+                 $input['file'] = $catalog_file_name;
+                 unset($input['image']);
+                 unset($input['thumb']);
+
+             }else {
                  unset($input['file']);
                  unset($input['image']);
+                 unset($input['thumb']);
              }
          }
 
@@ -289,15 +346,24 @@ class CatalogController extends Controller
                                 $catalog_thumb_img = Image::make($catalog_image->getRealPath())->resize(50, 50);
                                 $catalog_thumb_img->save($this->catalog_thumb_path . '/' . $catalog_image_title, 100);
                                 $catalog_image->move($this->catalog_image_path, $catalog_image_title);
+                            }elseif($catalog_file == null && $catalog_image != null){
+                                File::Delete($catalog_model->image);
+                                File::Delete($catalog_model->thumb);
+                                $catalog_thumb_img = Image::make($catalog_image->getRealPath())->resize(50, 50);
+                                $catalog_thumb_img->save($this->catalog_thumb_path . '/' . $catalog_image_title, 100);
+                                $catalog_image->move($this->catalog_image_path, $catalog_image_title);
+                            }elseif($catalog_file != null && $catalog_image == null){
+                                File::Delete($catalog_model->file);
+                                $catalog_file->move($this->catalog_file_path, $catalog_file_title);
                             }
                         }
-                        UserLogFileHelper::log_info('update-catalog', 'Successfully updated.', ['Catalog Title ' . $input['title']]);
-                        Session::flash('message', 'Successfully added!');
+                        AdminLogFileHelper::log_info('update-catalog', 'Successfully updated.', ['Catalog Title ' . $input['title']]);
+                        Session::flash('message', 'Successfully updated!');
                     }
                     catch (\Exception $e) {
                 //If there are any exceptions, rollback the transaction`
                 DB::rollback();
-                UserLogFileHelper::log_error('update-catalog', $e->getMessage(), ['Catalog Title ' . $input['title']]);
+                AdminLogFileHelper::log_error('update-catalog', $e->getMessage(), ['Catalog Title ' . $input['title']]);
                 Session::flash('danger', $e->getMessage());
             }
 
@@ -309,6 +375,9 @@ class CatalogController extends Controller
         //store into user_activity table
         $user_act = ActivityLogs::set_users_activity($action_name, $action_url, $action_detail, $action_table);
         return redirect()->back();
+        //return redirect()->route('admin.catalog');
+
+
     }           
 
     /**
@@ -343,13 +412,13 @@ class CatalogController extends Controller
                 }
 
                 DB::commit();
-                UserLogFileHelper::log_info('delete-catalog', "Successfully Deleted.", ['Catalog Title '.$model->title]);
+                AdminLogFileHelper::log_info('delete-catalog', "Successfully Deleted.", ['Catalog Title '.$model->title]);
                 Session::flash('message', "Successfully Deleted.");
 
 
             } catch(\Exception $e) {
                 DB::rollback();
-                UserLogFileHelper::log_error('delete-catalog', $e->getMessage(), ['Catalog Title '.$model->title]);
+                AdminLogFileHelper::log_error('delete-catalog', $e->getMessage(), ['Catalog Title '.$model->title]);
                 Session::flash('danger',$e->getMessage());
 
             }

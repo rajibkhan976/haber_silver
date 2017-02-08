@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Input;
 use App\Http\Helpers\ActivityLogs;
+use App\Helpers\AdminLogFileHelper;
 use Modules\Admin\Models\CompanyUser;
 use Modules\Admin\Models\Company;
 use App\User;

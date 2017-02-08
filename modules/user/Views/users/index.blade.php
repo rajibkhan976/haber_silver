@@ -6,7 +6,7 @@
     <div class="col-sm-12">
         <div class="panel">
             <div class="panel-heading">
-                <span class="panel-title"> User list </span>&nbsp;&nbsp;&nbsp;
+                <span class="panel-title"> {{ $pageTitle }} </span>&nbsp;&nbsp;&nbsp;
                 <span style="color: #A54A7B" class="right-popover" rel="popover" data-title="User Lists" data-html="true" data-content="<em>You will able to show all users below <br> Also you can add user, update, delete from the action column in the table</em>">
                     (?)
                 </span>
@@ -61,20 +61,30 @@
                             @if(isset($data))
                                 @foreach($data as $values)
                                     <tr class="gradeX">
-                                        <td> <img src="{!! isset($values->thumb) ? asset($values->thumb) : asset('uploads/users/default_thumb.png') !!}" >
+                                        <td>
+                                            @if($values->thumb != null)
+                                                <img src="{!! asset($values->thumb) !!}"  >
+                                            @else
+                                                <img src="{!! asset('uploads/users/default_thumb.png') !!}"  >
+                                            @endif
+                                            {{--<img src="{!! isset($values->thumb) ? asset($values->thumb) :asset('uploads/users/default_thumb.png') !!}"  >--}}
                                         </td>
                                         <td> {!! @$values->first_name !!} {!! @$values->last_name !!} </td>
                                         <td> {!! @$values->username !!} </td>
                                         <td> {!! @$values->email !!} </td>
-                                        <td> {!! isset($values->relRole)? \Illuminate\Support\Str::ucfirst(@$values->relRole->title) :  ucfirst(@$values->roles_title) !!} </td>
+                                        <td> {!! isset($values->relRole)? \Illuminate\Support\Str::ucfirst(@$values->relRole->title) : ucfirst(@$values->roles_title) !!} </td>
                                         <td> {!! @$values->last_visit !!} </td>
 
                                         <td> {{ucfirst(@$values->status)}} </td>
 
                                         <td>
-                                            <a href="{{ route('user.show', $values->id) }}" class="btn btn-info btn-xs" data-toggle="modal" data-target="#bgModal" data-placement="top" data-content="view"><i class="fa fa-eye"></i></a>
+                                            @if(  @$values->relRole->title != 'super-admin' )
+                                                <a href="{{ route('user.show', $values->id) }}" class="btn btn-info btn-xs" data-toggle="modal" data-target="#bgModal" data-placement="top" data-content="view"><i class="fa fa-eye"></i></a>
                                             <a href="{{ route('user.edit', $values->id) }}" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#bgModal" data-placement="top" data-content="update"><i class="fa fa-edit"></i></a>
                                             <a href="{{ route('user.delete', $values->id) }}" class="btn btn-danger btn-xs" onclick="return confirm('Are you sure to Delete?')" data-placement="top" data-content="delete"><i class="fa fa-trash-o"></i></a>
+                                                @else
+                                                <a href="{{ route('user.show', $values->id) }}" class="btn btn-info btn-xs" data-toggle="modal" data-target="#bgModal" data-placement="top" data-content="view"><i class="fa fa-eye"></i> View Only</a>
+                                                @endif
                                         </td>
                                     </tr>
                                 @endforeach
@@ -95,7 +105,7 @@
 
 <div id="addData" class="modal fade" tabindex="" role="dialog" style="display: none;">
     <div class="modal-dialog modal-lg" style="z-index:1050">
-        <div class="modal-content">
+        <div class="modal-content add-form">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true" title="click x button for close this entry form">×</button>
                 <h4 class="modal-title" id="myModalLabel"> Add User Information
@@ -121,7 +131,7 @@
 
 <div class="modal fade" id="bgModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" style="z-index:1050">
-        <div class="modal-content">
+        <div class="modal-content add-form">
 
         </div>
     </div>

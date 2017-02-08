@@ -64,6 +64,12 @@ Route::Group(['namespace'=>'Modules\User\Controllers', 'middleware' => 'web'],fu
         'uses' => 'UserController@index_cms_user'
     ]);
 
+    Route::get('user/distributor-list', [
+        'middleware' => 'acl_access:user/distributor-list',
+        'as' => 'user.distributor.user',
+        'uses' => 'UserController@index_distributor'
+    ]);
+
     Route::post('user/store', [
         'middleware' => 'acl_access:user/store',
         'as' => 'user.store',

@@ -2,7 +2,7 @@
 
 /* Route of catalog*/ 
 
-Route::get('catalog', [
+    Route::get('catalog', [
         #'middleware' => 'acl_access:catalog',
         'as' => 'admin.catalog',
         'uses' => 'CatalogController@index'
@@ -82,3 +82,32 @@ Route::get('catalog', [
         'as' => 'admin.setting.search',
         'uses' => 'SettingController@search_setting'
     ]);
+
+
+
+
+    /**
+     *
+        Event Management
+     */
+
+    Route::get('go', function() {
+        // this doesn't do anything other than to
+        // tell you to go to /fire
+        return "go to /fire";
+    });
+
+    Route::get('fire', function () {
+        // this fires the event
+        event(new App\Events\EventName());
+        return "event fired";
+    });
+
+    Route::get('event-test', function ()
+    {
+        // this checks for the event
+        return view('admin::events.test');
+    });
+
+
+

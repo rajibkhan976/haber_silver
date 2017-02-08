@@ -143,10 +143,10 @@ class User extends Authenticatable implements AuthenticatableContract, Authoriza
         $this->attributes['password'] = bcrypt($value);
     }
 
-    public function getUsernameAttribute($value)
+    /*public function getUsernameAttribute($value)
     {
         return strtok($value, '@');
-    }
+    }*/
 
 
 

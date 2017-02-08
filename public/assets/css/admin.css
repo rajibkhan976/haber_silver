@@ -1,2 +1,13 @@
+.add-form {
+  padding: 0 3%;
+}
+
+.frm-left-field {
+  padding-right: 3%;
+}
+
+.frm-right-field {
+  padding-left: 3%;
+}
 
 /*# sourceMappingURL=admin.css.map */

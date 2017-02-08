@@ -9,8 +9,8 @@
             <div class="panel">
                 <div class="panel-heading">
                     <span class="panel-title">{{ $pageTitle }}</span>&nbsp;&nbsp;&nbsp;
-                     <span style="color: #A54A7B " class="top-popover" rel="popover" data-title=" {{ $pageTitle }}" data-html="true" data-content="<em>we can show all permission in this page</em>"> (?) </span>
-                    <a class="btn btn-primary btn-xs pull-right pop" data-toggle="modal" href="#addData" data-placement="top" data-content="click add company button for new Company entry"  >   
+                     <span style="color: #A54A7B " class="top-popover" rel="popover" data-title=" {{ $pageTitle }}" data-html="true" data-content="<em>we can show all video master in this page</em>"> (?) </span>
+                    <a class="btn btn-primary btn-xs pull-right pop" data-toggle="modal" href="#addData" data-placement="top" data-content="click add video master button for new Video master entry"  >   
                         <strong>Add Video Master</strong>
                     </a>                   
                </div>
@@ -43,7 +43,7 @@
                                 <th> Order </th>
                                 <th> Page Type </th>
                                 <th> Status </th>
-                                <th> Action &nbsp;&nbsp;<span style="color: #A54A7B " class="top-popover" rel="popover" data-title="" data-html="true" data-content="view : click for details informations<br>update : click for update informations<br>delete : click for cancel customer activity"> (?) </span></th>
+                                <th> Action &nbsp;&nbsp;<span style="color: #A54A7B " class="top-popover" rel="popover" data-title="" data-html="true" data-content="view : click for details informations<br>update : click for update informations<br>delete : click for cancel video master activity"> (?) </span></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -63,7 +63,10 @@
                                     <td>
                                         <a href="{{ route('admin.view.video.master', $values->id) }}" class="btn btn-info btn-xs" data-toggle="modal" data-target="#etsbModal" data-placement="top" data-content="view"><i class="fa fa-eye"></i></a>
                                         <a href="{{ route('admin.edit.video.master', $values->id) }}" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#etsbModal" data-placement="top" data-content="update"><i class="fa fa-edit"></i></a>
-                                        <a href="{{ route('admin.delete.video.master', $values->id) }}" class="btn btn-danger btn-xs" onclick="return confirm('Are you sure to Delete?')" data-placement="top" data-content="delete"><i class="fa fa-trash-o"></i></a>
+
+                                        @if( $values->status !="cancel")
+                                            <a href="{{ route('admin.delete.video.master', $values->id) }}" class="btn btn-danger btn-xs" onclick="return confirm('Are you sure to Delete?')" data-placement="top" data-content="delete"><i class="fa fa-trash-o"></i></a>                                         
+                                        @endif
                                     </td>
                                 </tr>
                                 @endforeach
@@ -81,7 +84,7 @@
 
     <div id="addData" class="modal fade" tabindex="" role="dialog" style="display: none;">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
+            <div class="modal-content add-form">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true" title="click x button for close this entry form">×</button>
                     <h4 class="modal-title" id="myModalLabel">Add Video Master <span style="color: #A54A7B" class="user-guideline" data-content="<em>Must Fill <b>Required</b> Field.    <b>*</b> Put cursor on input field for more informations</em>"><font size="2">(?)</font> </span></h4>
@@ -108,7 +111,7 @@
 
     <div class="modal fade" id="etsbModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
+            <div class="modal-content add-form">
 
             </div>
         </div>

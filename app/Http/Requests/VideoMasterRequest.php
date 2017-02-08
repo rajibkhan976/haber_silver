@@ -31,11 +31,11 @@ class VideoMasterRequest extends FormRequest
         {
             return [
                 'type' => 'required', 
-                'title'=> 'required|min:3',
+                'title'=> 'required',
                 'order'=> 'required|numeric|4',
                 'page_type'=>' required'               
             ];
-        }else{
+        } else{
             return [
                 
             ];
