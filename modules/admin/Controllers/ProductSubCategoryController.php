@@ -291,7 +291,6 @@ class ProductSubCategoryController extends Controller
 
         $title = strtolower($input['title']);
         $slug = str_slug($input['title']);
-
         $table_query = ProductSubCategory::where('id', '=', $id)->first();
         $query_title = $table_query->title;
 
@@ -299,28 +298,26 @@ class ProductSubCategoryController extends Controller
         $files = Input::file('images');
 
         if($title != $query_title ){
+
             $data = ProductSubCategory::where('title', '=', $title)->exists(); // return bool
-
             if ($data = 'false') {
-                $images_name = [];
+                        $images_name = [];
+                        if ($files != "") {
+                            foreach ($files as $file) {
+                                $rules = array('images' => 'required|mimes:png,gif,jpeg');
+                                $validator = Validator::make(array('images' => $file), $rules);
 
-                if ($files != "") {
-                    foreach ($files as $file) {
-                        $rules = array('images' => 'required|mimes:png,gif,jpeg');
-                        $validator = Validator::make(array('images' => $file), $rules);
-
-                        if ($validator->passes()) {
-                            $destinationPath1 = $this->image_path;
-                            $destinationPath2 = $this->thumb_path;
-                            $imagename = $file->getClientOriginalName();
-                            $thumb_img = Image::make($file->getRealPath())->resize(50, 50);
-                            $file->move($destinationPath1, $imagename);
-                            $thumb_img->save($destinationPath2 . '/' . $imagename, 100);
-                            $images_name[] .= $imagename;
-
+                                if ($validator->passes()) {
+                                    $destinationPath1 = $this->image_path;
+                                    $destinationPath2 = $this->thumb_path;
+                                    $imagename = $file->getClientOriginalName();
+                                    $thumb_img = Image::make($file->getRealPath())->resize(50, 50);
+                                    $file->move($destinationPath1, $imagename);
+                                    $thumb_img->save($destinationPath2 . '/' . $imagename, 100);
+                                    $images_name[] .= $imagename;
+                                }
+                            }
                         }
-                    }
-                }
 
                 $input['title'] = $title;
                 $input['slug'] = $slug;
@@ -333,14 +330,14 @@ class ProductSubCategoryController extends Controller
 
                     #if(ProductCategory::create($input_data))
                     if ($model->update()) {
-                        $product_category_id = $model->id;
+                        $product_sub_cat_id = $model->id;
                         if ($files != "") {
                             foreach ($images_name as $image_name) {
                                 $input_image = $this->image_relative_path . '/' . $image_name;
                                 $input_thumb = $this->thumb_relative_path . '/' . $image_name;
 
-                                $model2 = new ProductCategoryImage();
-                                $model2->product_cat_id = $product_category_id;
+                                $model2 = new ProductSubCategoryImage();
+                                $model2->product_sub_cat_id = $product_sub_cat_id;
                                 $model2->image = $input_image;
                                 $model2->thumb = $input_thumb;
                                 $model2->alt = $title;
@@ -387,7 +384,7 @@ class ProductSubCategoryController extends Controller
 
             if ($files != "") {
                 foreach ($files as $file) {
-                    $rules = array('images' => 'required|mimes:png,gif,jpeg');
+                    $rules = array('images' => 'mimes:png,gif,jpeg');
                     $validator = Validator::make(array('images' => $file), $rules);
 
                     if ($validator->passes()) {
@@ -414,14 +411,14 @@ class ProductSubCategoryController extends Controller
 
                 #if(ProductCategory::create($input_data))
                 if ($model->update()) {
-                    $product_category_id = $model->id;
+                    $product_sub_cat_id = $model->id;
                     if ($files != "") {
                         foreach ($images_name as $image_name) {
                             $input_image = $this->image_relative_path . '/' . $image_name;
                             $input_thumb = $this->thumb_relative_path . '/' . $image_name;
 
-                            $model2 = new ProductCategoryImage();
-                            $model2->product_cat_id = $product_category_id;
+                            $model2 = new ProductSubCategoryImage();
+                            $model2->product_sub_cat_id = $product_sub_cat_id;
                             $model2->image = $input_image;
                             $model2->thumb = $input_thumb;
                             $model2->alt = $title;
@@ -463,7 +460,6 @@ class ProductSubCategoryController extends Controller
         return redirect()->route('admin.index.product.sub.category');
         /*--------------------------------------------------------------------*/
     }
-
 
 
 

@@ -18,7 +18,7 @@ class CreateCatalogTable extends Migration
             $table->increments('id');           
             $table->string('title', 45); 
             $table->string('slug', 45);
-            $table->string('file', 45);
+            $table->string('file', 128);
             $table->string('image', 128);
             $table->string('thumb', 128);                    
             $table->enum('status',array('active','inactive','cancel'))->nullable();

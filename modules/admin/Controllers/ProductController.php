@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Input;
 use App\Http\Helpers\ActivityLogs;
 use App\Helpers\AdminLogFileHelper;
-use App\Http\Helpers\ProductCodeGenerateHelper;
+use App\Http\Helpers\CodeGenerateHelper;
 use Modules\Admin\Models\ProductCategory;
 use Modules\Admin\Models\ProductSubCategory;
 use Modules\Admin\Models\Product;
@@ -71,7 +71,7 @@ class ProductController extends Controller
         DB::beginTransaction();
         try {  
 
-                $productCodeArr=ProductCodeGenerateHelper::generate_code('product-code');
+                $productCodeArr= CodeGenerateHelper::generate_code('product-code');
                 if($productCodeArr){
                   $productCode=$productCodeArr['generated_code'];
                   $setting_id=$productCodeArr['setting_id'];
@@ -99,7 +99,7 @@ class ProductController extends Controller
                 
                 $product->save();
 
-                ProductCodeGenerateHelper::update_row($setting_id, $lastNo);
+               CodeGenerateHelper::update_row($setting_id, $lastNo);
               //  dd($productCodeArr);
 
                 Product::boot();                

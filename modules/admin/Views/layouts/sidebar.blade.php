@@ -59,7 +59,7 @@
         <li><a href="{{url('admin/product')}}" ><span class="title"><i class="fa fa-align-justify"></i> Product Lists</span></a></li>
         <li><a href="{{ route('admin.index.product.category') }}" ><span class="title"><i class="fa fa-file-text-o"></i> Product Category</span></a></li>
         <li><a href="{{ route('admin.index.product.sub.category') }}" ><span class="title"><i class="fa fa-file-text-o"></i> Product Subcategory</span></a></li>
-        <li><a href="#" ><span class="title"><i class="fa fa-cog fa-spin fa-1x fa-fw"></i> Settings</span></a></li>
+        <li><a href="{{ route('admin.setting') }}" ><span class="title"><i class="fa fa-cog fa-spin fa-1x fa-fw"></i> Settings</span></a></li>
         <li class="gui-folder">
             <a href="javascript:void(0);">
                 <span class="title"><i class="fa fa-file" aria-hidden="true"></i> Reports </span>
